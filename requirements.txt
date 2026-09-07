@@ -1,0 +1,30 @@
+# Core (already verified working in this build)
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+
+# UI, orchestration, and AI -- not installable in the build sandbox (no network),
+# but wired into the code as the natural next dependencies. Install these in
+# your local/Claude Code environment before running app.py.
+streamlit>=1.40          # st.audio_input (voice questions) needs 1.40+
+plotly>=5.20
+langchain>=0.2
+langgraph>=0.1
+pydantic>=2.6
+anthropic>=0.30
+google-genai>=0.3         # for Gemini as an alternative LLM provider
+python-dotenv>=1.0
+openpyxl>=3.1          # needed for .xlsx uploads in Upload Data
+
+# Optional -- only needed for the in-app PDF download on the Reports &
+# Export page. Without it, the HTML report download still works fine
+# (open it and use the browser's Print to PDF). Pick one:
+# xhtml2pdf>=2.6
+# weasyprint>=61.0
+
+# Testing
+# pytest wasn't installable in this sandbox either -- the test suite in
+# tests/ is written against stdlib unittest so it runs either way:
+#   python3 -m unittest discover -s tests -v
+# Swap to pytest freely once you have network access:
+pytest>=8.0

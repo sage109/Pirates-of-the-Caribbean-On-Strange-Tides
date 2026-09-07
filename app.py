@@ -1,0 +1,742 @@
+"""
+app.py -- NYASHA AI
+
+Main Streamlit entry point. Wires the UI to the deterministic, already
+unit-tested modules in analytics/, rules/, services/, and database/, plus
+the newer agents/ (orchestration), locales/ (multi-language), reports/
+(export), and ui/ (watermark, gauge) modules.
+
+NOTE: This file requires `streamlit` (not installed in the build sandbox
+used to develop this project -- no network access there). It has been
+written carefully against the tested module APIs but has NOT been run
+live. Before your demo:
+    pip install -r requirements.txt
+    streamlit run app.py
+and fix anything that surfaces -- treat this as a strong draft, not a
+guaranteed-working final file. Every non-Streamlit piece it calls into
+(orchestrator, locales, auth, reports, ui components) IS unit-tested.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import pandas as pd
+import streamlit as st
+
+from agents.orchestrator import run_full_analysis
+from analytics.anomaly_detection import detect_anomalies
+from analytics.currency_normalisation import normalise_to_reporting_currency
+from analytics.customer_analysis import analyse_customer_risk
+from analytics.financial_health import calculate_financial_health
+from analytics.financial_metrics import (
+    liquidity_summary, profitability_summary, revenue_by_currency, working_capital_summary,
+)
+from analytics.forecasting import forecast_all_horizons
+from analytics.validation import validate_transactions
+from database.database import init_db, log_audit, log_usage
+from database.seed import seed_if_needed
+from locales.translations import available_languages, t
+from reports.report_generator import (
+    build_anomalies_csv, build_customer_risk_csv, build_html_report,
+    build_transactions_csv, export_pdf_if_available,
+)
+from rules.vat_rules import DISCLAIMER, VAT_RATES, calculate_vat_summary, vat_by_category
+from services.auth import User, can_access_page, create_user, ensure_users_table, user_count, verify_user
+from services.exchange_rates import get_live_rate, get_supported_currencies
+from services.llm_service import (
+    answer_financial_question, answer_financial_question_from_audio, explain_financial_result,
+)
+from ui.components import demo_mode_banner_html, health_score_gauge_svg, nyasha_watermark_html
+
+st.set_page_config(page_title="NYASHA AI", page_icon="\U0001f4a1", layout="wide")
+
+DEMO_BUSINESS_NAME = "Moyo Retail & Services"
+
+# --------------------------------------------------------------------------- Startup
+init_db()
+seed_if_needed()  # rebuilds demo data if the DB is empty (Section 0A.1 -- ephemeral filesystem)
+ensure_users_table()
+
+for key, default in {
+    "reporting_currency": "USD",
+    "language": "English",
+    "transactions_df": None,
+    "demo_mode": False,
+    "current_user": None,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
+
+
+# --------------------------------------------------------------------------- Auth gate
+def render_first_run_setup() -> None:
+    """Shown only while no accounts exist yet (Section: per-client/per-user
+    login accounts) -- mirrors the sibling investment dashboard's fix for
+    Streamlit Community Cloud giving no shell access to run a CLI script
+    against a hosted deployment."""
+    st.title("\U0001f4a1 NYASHA AI -- First-time setup")
+    st.info("No accounts exist yet. Create the first administrator account to continue.")
+    with st.form("first_run_setup"):
+        username = st.text_input("Admin username")
+        password = st.text_input("Password", type="password")
+        confirm = st.text_input("Confirm password", type="password")
+        submitted = st.form_submit_button("Create admin account")
+    if submitted:
+        if not username or not password:
+            st.error("Username and password are both required.")
+        elif password != confirm:
+            st.error("Passwords do not match.")
+        else:
+            create_user(username, password, role="admin")
+            st.success("Admin account created. Please log in below.")
+            st.rerun()
+
+
+def render_login() -> User | None:
+    st.title("\U0001f4a1 NYASHA AI -- Log in")
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
+    if submitted:
+        user = verify_user(username, password)
+        if user is None:
+            st.error("Incorrect username or password.")
+            return None
+        st.session_state.current_user = user
+        st.rerun()
+    return None
+
+
+def require_login() -> User:
+    if st.session_state.current_user is not None:
+        return st.session_state.current_user
+    if user_count() == 0:
+        render_first_run_setup()
+    else:
+        render_login()
+    st.stop()  # never reached after st.stop(), but keeps type-checkers happy
+
+
+# --------------------------------------------------------------------------- Sidebar / navigation
+NAV_ITEMS = [
+    ("Home", "\U0001f3e0", "nav_home"),
+    ("Dashboard", "\U0001f4ca", "nav_dashboard"),
+    ("Upload Data", "\U0001f4c1", "nav_upload"),
+    ("Financial Analysis", "\U0001f4b0", "nav_financial_analysis"),
+    ("Anomaly Detection", "\U0001f50d", "nav_anomalies"),
+    ("Cash Flow Forecast", "\U0001f4b5", "nav_cashflow"),
+    ("Customer Analysis", "\U0001f465", "nav_customers"),
+    ("VAT Analysis", "\U0001f9fe", "nav_vat"),
+    ("AI Financial Assistant", "\U0001f916", "nav_ai_assistant"),
+    ("Reports & Export", "\U0001f4e5", None),
+    ("Usage History", "\U0001f4da", "nav_usage_history"),
+    ("Audit Trail", "\U0001f4dc", "nav_audit_trail"),
+]
+
+
+def sidebar(user: User) -> str:
+    with st.sidebar:
+        st.markdown("## \U0001f4a1 NYASHA AI")
+        st.caption(t("app_tagline", st.session_state.language))
+        st.caption(f"Logged in as **{user.username}** ({user.role})")
+
+        st.session_state.language = st.selectbox(
+            f"\U0001f310 {t('language_label', st.session_state.language)}", available_languages(),
+            index=available_languages().index(st.session_state.language),
+        )
+        st.session_state.reporting_currency = st.selectbox(
+            t("reporting_currency_label", st.session_state.language), get_supported_currencies(),
+            index=get_supported_currencies().index(st.session_state.reporting_currency),
+        )
+        st.session_state.demo_mode = st.toggle(
+            f"\U0001f3ac {t('demo_mode', st.session_state.language)}", value=st.session_state.demo_mode,
+        )
+        if st.session_state.demo_mode and st.session_state.transactions_df is None:
+            st.session_state.transactions_df = pd.read_csv("data/sample_transactions.csv")
+
+        st.divider()
+        visible_items = [
+            (label, emoji, (t(key, st.session_state.language) if key else label))
+            for label, emoji, key in NAV_ITEMS if can_access_page(user, label)
+        ]
+        display_to_label = {f"{emoji} {display}": label for label, emoji, display in visible_items}
+        choice = st.radio(
+            "Navigate", list(display_to_label.keys()), label_visibility="collapsed",
+        )
+
+        st.divider()
+        if st.button("Log out"):
+            st.session_state.current_user = None
+            st.rerun()
+
+        return display_to_label[choice]
+
+
+# --------------------------------------------------------------------------- Data loading helpers
+def load_active_dataframe() -> pd.DataFrame | None:
+    """Returns the currently active, VALIDATED + currency-normalised
+    transactions, and stashes the FX rates actually used for this render
+    in session_state so the UI can show live/cached/manual badges."""
+    if st.session_state.transactions_df is None:
+        return None
+    result = validate_transactions(st.session_state.transactions_df)
+    norm = normalise_to_reporting_currency(result.valid_rows, st.session_state.reporting_currency)
+    st.session_state.rates_used = norm.rates_used
+    return norm.df
+
+
+def require_data() -> pd.DataFrame | None:
+    df = load_active_dataframe()
+    if df is None or df.empty:
+        st.info(t("no_data_loaded", st.session_state.language))
+        return None
+    return df
+
+
+def render_fx_badges() -> None:
+    """Section 13: never let a cached/manual rate masquerade as live --
+    surface exactly what kind of rate was used, right in the UI."""
+    rates_used = st.session_state.get("rates_used") or {}
+    if not rates_used:
+        return
+    badge_map = {"live": "\U0001f7e2 live", "cached": "\U0001f7e1 cached", "manual": "\U0001f535 manual", "historical": "\u26aa historical"}
+    parts = []
+    for currency, rr in rates_used.items():
+        if rr is None:
+            parts.append(f"`{currency}`: \u26a0\ufe0f unsupported (excluded)")
+        else:
+            parts.append(f"`{currency}\u2192{rr.to_currency}` {badge_map.get(rr.rate_type, rr.rate_type)}")
+    st.caption("Exchange rates used: " + " \u00b7 ".join(parts))
+
+
+# --------------------------------------------------------------------------- Pages
+def page_home(user: User):
+    st.title("\U0001f4a1 NYASHA AI")
+    st.subheader(t("app_tagline", st.session_state.language))
+    st.write(
+        "NYASHA AI turns raw SME transaction data into financial analysis, risk detection, "
+        "cash-flow forecasts, VAT summaries, and AI-explained recommendations -- with every "
+        "figure computed deterministically in Python and never invented by the AI."
+    )
+    st.markdown(f"Start with **{t('nav_upload', st.session_state.language)}** (or turn on Demo Mode in the sidebar), then explore the pages in the sidebar.")
+    if user.role == "viewer":
+        st.caption("You're logged in as a viewer: Dashboard and Financial Analysis only. Ask an admin for accountant access to upload data or use the AI assistant.")
+
+
+def page_upload():
+    st.title(f"\U0001f4c1 {t('nav_upload', st.session_state.language)}")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(f"### {t('load_demo_dataset', st.session_state.language)}")
+        st.caption(f"{DEMO_BUSINESS_NAME} -- 12 months, 7 currencies, deliberate anomalies for demonstration.")
+        if st.button(t("load_demo_dataset", st.session_state.language)):
+            st.session_state.transactions_df = pd.read_csv("data/sample_transactions.csv")
+            log_usage(user_action="Uploaded transactions", dataset=f"{DEMO_BUSINESS_NAME} (demo)",
+                      currency=st.session_state.reporting_currency, language=st.session_state.language)
+            st.success(f"Loaded {len(st.session_state.transactions_df)} demo transactions.")
+
+    with col2:
+        st.markdown(f"### {t('upload_your_own', st.session_state.language)}")
+        uploaded = st.file_uploader("CSV or Excel", type=["csv", "xlsx", "xls"])
+        if uploaded is not None:
+            df = pd.read_csv(uploaded) if uploaded.name.endswith(".csv") else pd.read_excel(uploaded)
+            st.session_state.transactions_df = df
+            log_usage(user_action="Uploaded transactions", dataset=uploaded.name,
+                      currency=st.session_state.reporting_currency, language=st.session_state.language)
+            st.success(f"Loaded {len(df)} transactions from {uploaded.name}.")
+
+    if st.session_state.transactions_df is not None:
+        st.divider()
+        st.markdown("### Data Validation")
+        result = validate_transactions(st.session_state.transactions_df)
+        st.code(result.summary())
+        with st.expander("See rows that failed validation"):
+            st.dataframe(result.invalid_rows)
+
+
+def page_dashboard():
+    st.title(f"\U0001f4ca {t('nav_dashboard', st.session_state.language)}")
+    if st.session_state.demo_mode:
+        st.markdown(demo_mode_banner_html(), unsafe_allow_html=True)
+    df = require_data()
+    if df is None:
+        return
+
+    prof = profitability_summary(df)
+    liq = liquidity_summary(df)
+    health = calculate_financial_health(df)
+    render_fx_badges()
+
+    left, right = st.columns([2, 1])
+    with left:
+        c1, c2, c3, c4, c5 = st.columns(5)
+        cur = st.session_state.reporting_currency
+        c1.metric(t("revenue", st.session_state.language), f"{cur} {prof.revenue:,.2f}")
+        c2.metric(t("expenses", st.session_state.language), f"{cur} {prof.expenses:,.2f}")
+        c3.metric(t("net_profit", st.session_state.language), f"{cur} {prof.net_profit:,.2f}",
+                  f"{prof.net_margin_pct}%" if prof.net_margin_pct is not None else None)
+        c4.metric(t("cash_balance", st.session_state.language), f"{cur} {liq.net_cash_flow:,.2f}")
+        c5.metric(t("profit_margin", st.session_state.language), f"{prof.net_margin_pct}%" if prof.net_margin_pct is not None else "N/A")
+
+        st.divider()
+        st.markdown("### \U0001f4b5 Revenue by currency (original amounts -- see Section 12)")
+        st.bar_chart(pd.Series(revenue_by_currency(df)))
+
+    with right:
+        st.markdown(f"### {t('financial_health', st.session_state.language)}")
+        st.markdown(health_score_gauge_svg(health.total_score, health.rating), unsafe_allow_html=True)
+        if st.session_state.demo_mode:
+            st.info(
+                f"Demo commentary: {DEMO_BUSINESS_NAME} scores **{health.total_score}/100 "
+                f"({health.rating})** this period, driven mainly by its profitability and "
+                "cash-flow components below -- open Financial Analysis to see the full breakdown."
+            )
+
+    st.divider()
+    render_live_rates_section()
+
+
+def render_live_rates_section() -> None:
+    """
+    Live exchange rates for every currency NYASHA AI supports, quoted
+    against the current reporting currency -- independent of what's
+    actually present in the uploaded dataset (that's what render_fx_badges()
+    covers). Each rate is clearly tagged live/cached/manual per Section 13;
+    a failed lookup for one currency doesn't take down the rest.
+    """
+    cur = st.session_state.reporting_currency
+    others = [c for c in get_supported_currencies() if c != cur]
+    if not others:
+        return
+
+    st.markdown("### \U0001f310 Live Exchange Rates")
+    st.caption(f"1 unit of each currency, quoted in {cur}. Refreshes on every page load.")
+    badge_map = {"live": "\U0001f7e2 live", "cached": "\U0001f7e1 cached", "manual": "\U0001f535 manual", "historical": "\u26aa historical"}
+
+    cols = st.columns(min(len(others), 6))
+    for i, currency in enumerate(others):
+        with cols[i % len(cols)]:
+            try:
+                rr = get_live_rate(currency, cur)
+                st.metric(currency, f"{rr.rate:,.4f}", badge_map.get(rr.rate_type, rr.rate_type))
+                if currency == "ZWL":
+                    st.caption("\u26a0\ufe0f Highly volatile -- verify before relying on this.")
+            except ValueError:
+                st.metric(currency, "N/A", "\u26a0\ufe0f unsupported")
+
+
+def _safe_ai_text(text: str) -> str:
+    """
+    Escapes '$' before rendering AI-generated text through st.markdown/st.write/
+    st.info. Streamlit treats text between two '$' characters as LaTeX math --
+    harmless for most content, but financial answers are full of dollar
+    amounts, so a real answer like "Revenue is $182,147.23 ... expenses are
+    $138,137.01" gets its middle silently swallowed as a broken math block,
+    which is exactly the truncated-response bug this fixes. Escaping to '\\$'
+    keeps the literal dollar sign and disables math-mode for it.
+    """
+    return text.replace("$", "\\$")
+
+
+def _fmt_currency(value: float, currency: str) -> str:
+    return f"{currency} {value:,.2f}"
+
+
+def _fmt_pct(value: float | None) -> str:
+    return f"{value:.1f}%" if value is not None else "N/A"
+
+
+def _fmt_ratio(value: float | None) -> str:
+    return f"{value:.2f}" if value is not None else "N/A"
+
+
+def page_financial_analysis():
+    st.title(f"\U0001f4b0 {t('nav_financial_analysis', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    prof = profitability_summary(df)
+    liq = liquidity_summary(df)
+    wc = working_capital_summary(df)
+    health = calculate_financial_health(df)
+    render_fx_badges()
+    cur = st.session_state.reporting_currency
+
+    st.markdown("### Profitability")
+    r1 = st.columns(4)
+    r1[0].metric("Revenue", _fmt_currency(prof.revenue, cur))
+    r1[1].metric("Expenses", _fmt_currency(prof.expenses, cur))
+    r1[2].metric("COGS", _fmt_currency(prof.cogs, cur))
+    r1[3].metric("Gross Profit", _fmt_currency(prof.gross_profit, cur), _fmt_pct(prof.gross_margin_pct))
+    r2 = st.columns(4)
+    r2[0].metric("Operating Profit", _fmt_currency(prof.operating_profit, cur), _fmt_pct(prof.operating_margin_pct))
+    r2[1].metric("Net Profit", _fmt_currency(prof.net_profit, cur), _fmt_pct(prof.net_margin_pct))
+    r2[2].metric("Gross Margin", _fmt_pct(prof.gross_margin_pct))
+    r2[3].metric("Net Margin", _fmt_pct(prof.net_margin_pct))
+
+    st.divider()
+    st.markdown("### Liquidity")
+    l1 = st.columns(4)
+    l1[0].metric("Cash Inflows", _fmt_currency(liq.cash_inflows, cur))
+    l1[1].metric("Cash Outflows", _fmt_currency(liq.cash_outflows, cur))
+    l1[2].metric("Net Cash Flow", _fmt_currency(liq.net_cash_flow, cur))
+    l1[3].metric("Current Ratio", _fmt_ratio(liq.current_ratio))
+    st.caption("Quick Ratio: " + _fmt_ratio(liq.quick_ratio))
+
+    st.divider()
+    st.markdown("### Working Capital")
+    w1 = st.columns(4)
+    w1[0].metric("Receivables", _fmt_currency(wc.receivables, cur))
+    w1[1].metric("Payables", _fmt_currency(wc.payables, cur))
+    w1[2].metric("Receivables Trend", _fmt_pct(wc.receivables_trend_pct))
+    w1[3].metric("Payables Trend", _fmt_pct(wc.payables_trend_pct))
+    st.caption(
+        "Receivables/payables and liquidity ratios are proxies derived from transaction "
+        "categories (Customer Receipts / Supplier Payments) -- a raw transaction feed doesn't "
+        "carry a formal balance sheet or AR/AP subledger."
+    )
+
+    st.divider()
+    gauge_col, detail_col = st.columns([1, 2])
+    with gauge_col:
+        st.markdown(health_score_gauge_svg(health.total_score, health.rating), unsafe_allow_html=True)
+    with detail_col:
+        st.markdown(f"#### {t('how_score_calculated', st.session_state.language)}")
+        for c in health.components:
+            st.write(f"**{c.name}** ({c.weight_pct:.0f}% weight): {c.component_score:.1f}/100")
+            st.caption(c.explanation)
+
+    if st.button(t("explain_with_ai", st.session_state.language)):
+        with st.spinner("Asking NYASHA AI..."):
+            lang_code = {"English": "en", "Shona": "sn", "Ndebele": "nd"}[st.session_state.language]
+            explanation = explain_financial_result(
+                {"profitability": prof, "liquidity": liq, "health_score": health}, language=lang_code,
+            )
+        st.info(_safe_ai_text(explanation))
+        log_audit(user_action="AI explanation requested", analysis_type="financial_analysis",
+                   calculation_results={"net_profit": prof.net_profit, "health_score": health.total_score})
+
+
+def page_anomalies():
+    st.title(f"\U0001f50d {t('nav_anomalies', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    findings = detect_anomalies(df)
+    if not findings:
+        st.success("No unusual transactions detected in the current dataset.")
+        return
+
+    if st.session_state.demo_mode and findings:
+        top = findings[0]
+        st.markdown(demo_mode_banner_html(), unsafe_allow_html=True)
+        st.warning(
+            f"Demo highlight -- **{top.transaction_id}** is the highest-risk finding "
+            f"(score {top.risk_score}, {top.risk_level}): {top.reasons[0]}"
+        )
+
+    for f in findings:
+        level_color = {"HIGH": "\U0001f534", "MEDIUM": "\U0001f7e1", "LOW": "\U0001f7e2"}[f.risk_level]
+        with st.expander(f"{level_color} {f.transaction_id} -- {f.risk_level} (score {f.risk_score})"):
+            st.write("**Reasons:**")
+            for r in f.reasons:
+                st.write(f"- {r}")
+            st.write(f"**Recommended action:** {f.recommended_action}")
+
+    st.divider()
+    st.download_button(
+        "Download anomalies as CSV", build_anomalies_csv(findings),
+        file_name="nyasha_anomalies.csv", mime="text/csv",
+    )
+
+
+def page_cashflow():
+    st.title(f"\U0001f4b5 {t('nav_cashflow', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    forecasts = forecast_all_horizons(df)
+    cur = st.session_state.reporting_currency
+    horizons = sorted(forecasts.keys())
+    starting_balance = forecasts[horizons[0]].starting_balance
+
+    st.markdown("### Projected balance")
+    st.caption(
+        "Straight-line projection from recent average daily cash flow -- day 0 is today's "
+        "actual balance; each later point is that day's expected closing balance."
+    )
+    projection = pd.Series(
+        {0: starting_balance, **{h: forecasts[h].expected_closing_balance for h in horizons}},
+        name=f"Projected balance ({cur})",
+    )
+    st.line_chart(projection)
+
+    st.divider()
+    st.markdown("### At a glance")
+    cols = st.columns(len(horizons))
+    for col, h in zip(cols, horizons):
+        f = forecasts[h]
+        with col:
+            st.metric(f"{h}-day", f"{cur} {f.expected_closing_balance:,.0f}", f"{f.status_emoji} {f.status.upper()}")
+
+    st.divider()
+    st.markdown("### Details by horizon")
+    horizon_choice = st.selectbox("Choose a horizon", horizons, index=horizons.index(30) if 30 in horizons else 0)
+    f = forecasts[horizon_choice]
+
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric("Starting Balance", f"{cur} {f.starting_balance:,.2f}")
+    d2.metric("Expected Inflows", f"{cur} {f.expected_inflows:,.2f}")
+    d3.metric("Expected Outflows", f"{cur} {f.expected_outflows:,.2f}")
+    d4.metric("Expected Closing Balance", f"{cur} {f.expected_closing_balance:,.2f}")
+
+    status_colors = {"healthy": "\U0001f7e2", "watch": "\U0001f7e1", "shortage": "\U0001f534"}
+    st.markdown(f"**Status:** {status_colors.get(f.status, f.status_emoji)} {f.status.upper()}")
+    st.caption(f"Main driver: {f.main_driver}")
+
+
+def page_customers():
+    st.title(f"\U0001f465 {t('nav_customers', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    risks = analyse_customer_risk(df)
+    if not risks:
+        st.info("No customer-attributed income transactions in this dataset.")
+        return
+
+    st.dataframe(pd.DataFrame([r.__dict__ for r in risks]))
+    st.download_button(
+        "Download customer risk as CSV", build_customer_risk_csv(risks),
+        file_name="nyasha_customer_risk.csv", mime="text/csv",
+    )
+
+
+def page_vat():
+    st.title(f"\U0001f9fe {t('nav_vat', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    vat = calculate_vat_summary(df)
+    cur = st.session_state.reporting_currency
+
+    st.markdown(
+        f"NYASHA AI classifies every transaction's VAT status (standard-rated at "
+        f"**{VAT_RATES['standard']:.1%}**, zero-rated, or exempt) and calculates VAT the way a "
+        f"Zimbabwean SME accountant would: **Output VAT** is VAT charged on sales (owed to ZIMRA), "
+        f"**Input VAT** is VAT paid on purchases (claimable back), and **Net VAT Payable** is the "
+        f"difference between the two for this period."
+    )
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Output VAT", _fmt_currency(vat.output_vat, cur), help="VAT charged on sales/income transactions this period.")
+    c2.metric("Input VAT", _fmt_currency(vat.input_vat, cur), help="VAT paid on purchases/expense transactions this period.")
+    c3.metric("Net VAT Payable", _fmt_currency(vat.net_vat_payable, cur), help="Output VAT minus Input VAT.")
+
+    if vat.net_vat_payable > 0:
+        st.info(
+            f"**Net position: VAT owed.** Output VAT exceeds Input VAT by "
+            f"{_fmt_currency(vat.net_vat_payable, cur)} -- this is the amount typically due to "
+            f"the tax authority for the period, before any adjustments."
+        )
+    elif vat.net_vat_payable < 0:
+        st.info(
+            f"**Net position: potential refund/credit.** Input VAT exceeds Output VAT by "
+            f"{_fmt_currency(abs(vat.net_vat_payable), cur)} -- this can indicate a refundable "
+            f"credit position, but eligibility and timing depend on tax rules a professional "
+            f"should confirm; it is not automatically a cash refund."
+        )
+    else:
+        st.info("**Net position: balanced.** Output VAT and Input VAT are equal for this period.")
+
+    st.divider()
+    st.markdown("### VAT by category")
+    st.caption("Where VAT is being generated or incurred, by transaction category.")
+    by_cat = vat_by_category(df)
+    if by_cat:
+        st.bar_chart(pd.Series(by_cat).sort_values(ascending=False))
+    else:
+        st.caption("No VAT-bearing transactions in this dataset.")
+
+    st.divider()
+    if vat.transactions_flagged_for_review:
+        st.warning(
+            f"**{vat.transactions_missing_vat_status} transaction(s) are missing a recognised VAT "
+            f"status** (not marked standard, zero-rated, or exempt) and were excluded from the VAT "
+            f"totals above -- review and correct these in the source data before filing."
+        )
+        flagged_df = df[df["transaction_id"].astype(str).isin(vat.transactions_flagged_for_review)]
+        display_cols = [c for c in [
+            "transaction_id", "date", "description", "transaction_type", "category",
+            "amount", "currency", "vat_status",
+        ] if c in flagged_df.columns]
+        with st.expander(f"See {len(flagged_df)} flagged transaction(s) in detail", expanded=True):
+            st.dataframe(flagged_df[display_cols], use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download flagged transactions as CSV",
+                flagged_df[display_cols].to_csv(index=False),
+                file_name="nyasha_vat_flagged_transactions.csv", mime="text/csv",
+            )
+    else:
+        st.success("Every transaction has a recognised VAT status -- nothing flagged for review.")
+
+    st.divider()
+    st.caption(DISCLAIMER)
+    st.caption(t("vat_disclaimer_note", st.session_state.language))
+
+
+def page_ai_assistant():
+    st.title(f"\U0001f916 {t('nav_ai_assistant', st.session_state.language)}")
+    df = require_data()
+    if df is None:
+        return
+
+    st.caption(
+        "Ask about this business's numbers, or a general financial/accounting/tax "
+        "question -- the assistant answers general questions from its own knowledge, "
+        "and always checks this business's own figures against the verified data below."
+    )
+
+    def _build_context() -> dict:
+        prof = profitability_summary(df)
+        liq = liquidity_summary(df)
+        health = calculate_financial_health(df)
+        findings = detect_anomalies(df)[:5]
+        forecasts = forecast_all_horizons(df)
+        return {
+            "profitability": prof, "liquidity": liq, "health_score": health,
+            "top_anomalies": findings, "cash_flow_forecast_30_day": forecasts[30],
+        }
+
+    lang_code = {"English": "en", "Shona": "sn", "Ndebele": "nd"}[st.session_state.language]
+
+    question = st.text_input("Ask a question")
+    if st.button("Ask") and question:
+        with st.spinner("Thinking..."):
+            answer = answer_financial_question(question, _build_context(), language=lang_code)
+        st.write(_safe_ai_text(answer))
+        log_usage(user_action="AI inquiry", ai_inquiry=question, currency=st.session_state.reporting_currency,
+                   language=st.session_state.language)
+
+    st.divider()
+    st.markdown("#### \U0001f3a4 Or ask by voice")
+    st.caption("Needs a Gemini API key -- Claude's API doesn't accept audio input yet.")
+    audio = st.audio_input("Record your question")
+    if audio is not None and st.button("Ask (voice)"):
+        with st.spinner("Listening and thinking..."):
+            audio_bytes = audio.getvalue()
+            mime_type = getattr(audio, "type", None) or "audio/wav"
+            answer = answer_financial_question_from_audio(
+                audio_bytes, mime_type, _build_context(), language=lang_code,
+            )
+        st.write(_safe_ai_text(answer))
+        log_usage(user_action="AI inquiry (voice)", ai_inquiry="[voice question]",
+                   currency=st.session_state.reporting_currency, language=st.session_state.language)
+
+
+def page_reports():
+    st.title("\U0001f4e5 Reports & Export")
+    df = require_data()
+    if df is None:
+        return
+
+    st.caption("Runs the full NYASHA AI pipeline (agents/orchestrator.py) once and lets you export the results.")
+    include_ai = st.checkbox("Include AI explanation in the report", value=False,
+                              help="Calls the LLM (or its offline demo-mode fallback) -- leave off for a faster, purely deterministic report.")
+
+    if st.button("Generate report"):
+        with st.spinner("Running full analysis..."):
+            summary = run_full_analysis(
+                df, reporting_currency=st.session_state.reporting_currency,
+                language={"English": "en", "Shona": "sn", "Ndebele": "nd"}[st.session_state.language],
+                include_explanation=include_ai,
+            )
+        if summary.errors:
+            st.warning("Some steps could not complete: " + "; ".join(summary.errors))
+
+        html_report = build_html_report(
+            business_name=DEMO_BUSINESS_NAME if st.session_state.demo_mode else "Uploaded business",
+            reporting_currency=st.session_state.reporting_currency,
+            profitability=summary.profitability, health_score=summary.health_score,
+            anomalies=summary.anomalies, forecasts=summary.forecasts,
+            vat_summary=summary.vat_summary, ai_explanation=summary.ai_explanation,
+        )
+        st.session_state["_last_report_html"] = html_report
+        st.session_state["_last_report_summary"] = summary
+        log_usage(user_action="Report generated", report_generated=True,
+                   currency=st.session_state.reporting_currency, language=st.session_state.language)
+
+    if "_last_report_html" in st.session_state:
+        st.success("Report ready.")
+        html_report = st.session_state["_last_report_html"]
+        st.download_button("Download report (HTML -- open and Print to PDF)", html_report,
+                            file_name="nyasha_report.html", mime="text/html")
+        pdf_bytes = export_pdf_if_available(html_report)
+        if pdf_bytes:
+            st.download_button("Download report (PDF)", pdf_bytes, file_name="nyasha_report.pdf", mime="application/pdf")
+        else:
+            st.caption("No PDF backend installed (xhtml2pdf/weasyprint) -- use the HTML download and your browser's Print to PDF.")
+        st.download_button("Download raw transactions (CSV)", build_transactions_csv(df),
+                            file_name="nyasha_transactions.csv", mime="text/csv")
+        with st.expander("Preview report"):
+            st.components.v1.html(html_report, height=600, scrolling=True)
+
+
+def page_usage_history():
+    st.title(f"\U0001f4da {t('nav_usage_history', st.session_state.language)}")
+    from database.database import fetch_all
+    rows = fetch_all("SELECT * FROM usage_history ORDER BY id DESC LIMIT 200")
+    st.dataframe(pd.DataFrame(rows))
+
+
+def page_audit_trail():
+    st.title(f"\U0001f4dc {t('nav_audit_trail', st.session_state.language)}")
+    from database.database import fetch_all
+    rows = fetch_all("SELECT * FROM audit_trail ORDER BY id DESC LIMIT 200")
+    st.dataframe(pd.DataFrame(rows))
+
+
+# --------------------------------------------------------------------------- Router
+# "Home" is handled separately in main() since it's the only page needing
+# `user` -- every other page reads what it needs from st.session_state.
+PAGES = {
+    "Dashboard": page_dashboard,
+    "Upload Data": page_upload,
+    "Financial Analysis": page_financial_analysis,
+    "Anomaly Detection": page_anomalies,
+    "Cash Flow Forecast": page_cashflow,
+    "Customer Analysis": page_customers,
+    "VAT Analysis": page_vat,
+    "AI Financial Assistant": page_ai_assistant,
+    "Reports & Export": page_reports,
+    "Usage History": page_usage_history,
+    "Audit Trail": page_audit_trail,
+}
+
+
+def main():
+    user = require_login()
+    st.markdown(nyasha_watermark_html(), unsafe_allow_html=True)
+    page = sidebar(user)
+    if not can_access_page(user, page):
+        st.error("You don't have access to this page.")
+        return
+    if page == "Home":
+        page_home(user)
+    else:
+        PAGES[page]()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,366 @@
+transaction_id,date,description,account,customer,supplier,transaction_type,category,amount,currency,payment_method,invoice_number,vat_status
+TX0001,2025-09-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202509,standard
+TX0027,2025-09-01,Marketing - flyers and social media,Operations,,,expense,Marketing,66.02,USD,Bank Transfer,,standard
+TX0028,2025-09-03,Fuel and transport,Operations,,,expense,Bank Charges,33.48,USD,EcoCash,,zero_rated
+TX0029,2025-09-03,Marketing - flyers and social media,Operations,,,expense,Bank Charges,75.7,USD,Swipe/POS,,standard
+TX0007,2025-09-04,Sale of goods - stationery,Sales,Mutare Merchants,,income,Sales - Retail,2478.66,USD,Cash,INV-202509-967,zero_rated
+TX0013,2025-09-11,Sale of goods - electronics,Sales,Kadoma Cash & Carry,,income,Sales - Retail,247.91,USD,Bank Transfer,INV-202509-680,exempt
+TX0018,2025-09-11,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Other Income,2494.23,ZAR,Bank Transfer,INV-202509-564,standard
+TX0011,2025-09-12,Sale of goods - groceries,Sales,Kadoma Cash & Carry,,income,Sales - Retail,646.09,ZAR,RTGS,INV-202509-750,standard
+TX0022,2025-09-12,Stock purchase from Proplastics Ltd,Purchases,,Zimplow Holdings,expense,Supplier Payments,433.23,USD,RTGS,PO-202509-180,standard
+TX0014,2025-09-13,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Customer Receipts,2149.09,USD,Bank Transfer,INV-202509-352,exempt
+TX0032,2025-09-14,Vehicle maintenance,Operations,,,expense,Repairs & Maintenance,192.77,USD,EcoCash,,exempt
+TX0012,2025-09-15,Sale of goods - electronics,Sales,Kadoma Cash & Carry,,income,Sales - Wholesale,896.67,USD,Cash,INV-202509-963,standard
+TX0017,2025-09-15,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Sales - Retail,1967.46,USD,EcoCash,INV-202509-798,exempt
+TX0026,2025-09-15,Stock purchase from SA Freight Logistics,Purchases,,ZESA Utility Payments,expense,Supplier Payments,578.31,ZWL,Bank Transfer,PO-202509-165,standard
+TX0023,2025-09-16,Stock purchase from Innscor Distribution,Purchases,,SA Freight Logistics,expense,Supplier Payments,2061.42,USD,Bank Transfer,PO-202509-775,standard
+TX0005,2025-09-17,Sale of goods - clothing,Sales,Chitungwiza Wholesalers,,income,Sales - Wholesale,816.85,USD,RTGS,INV-202509-529,standard
+TX0024,2025-09-18,Stock purchase from National Foods Ltd,Purchases,,Proplastics Ltd,expense,Supplier Payments,1513.65,USD,RTGS,PO-202509-533,
+TX0030,2025-09-18,Bank charges,Operations,,,expense,Marketing,135.24,USD,Bank Transfer,,zero_rated
+TX0015,2025-09-19,Sale of goods - electronics,Sales,Mutare Merchants,,income,Customer Receipts,951.36,ZWL,Bank Transfer,INV-202509-241,exempt
+TX0020,2025-09-20,Stock purchase from Zimplow Holdings,Purchases,,National Foods Ltd,expense,Supplier Payments,1160.0,ZWL,Bank Transfer,PO-202509-652,standard
+TX0003,2025-09-21,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,91.13,USD,RTGS,ZESA-202509,standard
+TX0004,2025-09-24,Sale of goods - stationery,Sales,Avondale Essentials,,income,Sales - Retail,830.79,USD,RTGS,INV-202509-532,standard
+TX0008,2025-09-24,Sale of goods - electronics,Sales,Avondale Essentials,,income,Sales - Retail,2611.74,ZWL,Swipe/POS,INV-202509-180,exempt
+TX0019,2025-09-25,Stock purchase from National Foods Ltd,Purchases,,SA Freight Logistics,expense,Supplier Payments,2399.04,ZMW,Cash,PO-202509-961,standard
+TX0031,2025-09-26,Vehicle maintenance,Operations,,,expense,Bank Charges,38.87,USD,Swipe/POS,,zero_rated
+TX0002,2025-09-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0006,2025-09-28,Sale of goods - stationery,Sales,Borrowdale Boutique,,income,Other Income,998.48,USD,Cash,INV-202509-384,standard
+TX0010,2025-09-28,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Other Income,3154.93,ZAR,Cash,INV-202509-564,exempt
+TX0016,2025-09-28,Sale of goods - stationery,Sales,Borrowdale Boutique,,income,Sales - Wholesale,2455.14,USD,Swipe/POS,INV-202509-710,standard
+TX0009,2025-09-29,Sale of goods - hardware,Sales,Highfield Hardware,,income,Sales - Retail,2067.35,USD,EcoCash,INV-202509-777,
+TX0021,2025-09-30,Stock purchase from SA Freight Logistics,Purchases,,Delta Beverages Zim,expense,Supplier Payments,1677.57,BWP,Swipe/POS,PO-202509-119,standard
+TX0025,2025-09-30,Stock purchase from SA Freight Logistics,Purchases,,Zimplow Holdings,expense,Supplier Payments,1939.78,BWP,Swipe/POS,PO-202509-787,standard
+TX0033,2025-10-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202510,standard
+TX0038,2025-10-01,Sale of goods - stationery,Sales,Highfield Hardware,,income,Sales - Wholesale,1798.79,ZWL,Swipe/POS,INV-202510-597,zero_rated
+TX0054,2025-10-01,Fuel and transport,Operations,,,expense,Transport,209.01,USD,Bank Transfer,,exempt
+TX0039,2025-10-02,Sale of goods - groceries,Sales,Mutare Merchants,,income,Sales - Retail,1373.17,USD,Swipe/POS,INV-202510-371,zero_rated
+TX0055,2025-10-02,Office supplies,Operations,,,expense,Marketing,130.51,USD,Swipe/POS,,standard
+TX0056,2025-10-02,Office supplies,Operations,,,expense,Operating Expenses,199.8,USD,EcoCash,,zero_rated
+TX0049,2025-10-04,Stock purchase from National Foods Ltd,Purchases,,Proplastics Ltd,expense,Supplier Payments,565.49,BWP,EcoCash,PO-202510-860,standard
+TX0042,2025-10-06,Sale of goods - stationery,Sales,Avondale Essentials,,income,Sales - Retail,2750.8,USD,Bank Transfer,INV-202510-170,exempt
+TX0046,2025-10-07,Stock purchase from SA Freight Logistics,Purchases,,Proplastics Ltd,expense,Supplier Payments,604.65,USD,Cash,PO-202510-170,standard
+TX0057,2025-10-07,Bank charges,Operations,,,expense,Transport,90.74,USD,RTGS,,zero_rated
+TX0050,2025-10-09,Stock purchase from Proplastics Ltd,Purchases,,Zimplow Holdings,expense,Supplier Payments,1950.51,ZWL,Bank Transfer,PO-202510-803,standard
+TX0051,2025-10-09,Stock purchase from SA Freight Logistics,Purchases,,ZESA Utility Payments,expense,Supplier Payments,877.58,ZWL,EcoCash,PO-202510-194,standard
+TX0053,2025-10-09,Bank charges,Operations,,,expense,Repairs & Maintenance,130.34,USD,Swipe/POS,,exempt
+TX0044,2025-10-11,Sale of goods - hardware,Sales,Highfield Hardware,,income,Customer Receipts,1873.94,ZWL,Bank Transfer,INV-202510-371,zero_rated
+TX0047,2025-10-12,Stock purchase from Proplastics Ltd,Purchases,,National Foods Ltd,expense,Supplier Payments,1307.82,EUR,RTGS,PO-202510-820,standard
+TX0043,2025-10-13,Sale of goods - stationery,Sales,Highfield Hardware,,income,Sales - Retail,2778.55,USD,RTGS,INV-202510-183,zero_rated
+TX0037,2025-10-15,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Other Income,709.64,USD,RTGS,INV-202510-200,standard
+TX0045,2025-10-15,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Sales - Retail,2118.78,USD,Swipe/POS,INV-202510-736,exempt
+TX0041,2025-10-18,Sale of goods - stationery,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,1916.5,BWP,EcoCash,INV-202510-698,zero_rated
+TX0058,2025-10-20,Bank charges,Operations,,,expense,Bank Charges,192.92,USD,Bank Transfer,,zero_rated
+TX0035,2025-10-21,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,178.42,USD,RTGS,ZESA-202510,standard
+TX0040,2025-10-24,Sale of goods - clothing,Sales,Gweru General Store,,income,Sales - Wholesale,2274.6,USD,Bank Transfer,INV-202510-403,standard
+TX0036,2025-10-26,Sale of goods - stationery,Sales,Highfield Hardware,,income,Sales - Wholesale,2371.05,USD,Bank Transfer,INV-202510-649,zero_rated
+TX0048,2025-10-26,Stock purchase from SA Freight Logistics,Purchases,,Delta Beverages Zim,expense,Supplier Payments,1836.09,USD,RTGS,PO-202510-406,standard
+TX0052,2025-10-27,Office supplies,Operations,,,expense,Transport,20.71,USD,Bank Transfer,,exempt
+TX0034,2025-10-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0059,2025-11-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202511,standard
+TX0061,2025-11-01,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,97.94,USD,RTGS,ZESA-202511,standard
+TX0065,2025-11-01,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Sales - Wholesale,1785.46,ZMW,RTGS,INV-202511-371,standard
+TX0067,2025-11-01,Sale of goods - clothing,Sales,Avondale Essentials,,income,Sales - Wholesale,2311.8,USD,Cash,INV-202511-541,standard
+TX0083,2025-11-05,Bank charges,Operations,,,expense,Repairs & Maintenance,158.79,USD,Bank Transfer,,standard
+TX0085,2025-11-07,Vehicle maintenance,Operations,,,expense,Repairs & Maintenance,200.97,USD,RTGS,,exempt
+TX0077,2025-11-08,Stock purchase from Innscor Distribution,Purchases,,ZESA Utility Payments,expense,Supplier Payments,6140.52,USD,Swipe/POS,PO-202511-783,standard
+TX0064,2025-11-09,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Customer Receipts,1365.32,ZWL,RTGS,INV-202511-509,exempt
+TX0082,2025-11-09,Office supplies,Operations,,,expense,Operating Expenses,198.61,USD,EcoCash,,standard
+TX0069,2025-11-10,Sale of goods - clothing,Sales,Borrowdale Boutique,,income,Sales - Wholesale,1377.32,USD,Swipe/POS,INV-202511-780,zero_rated
+TX0075,2025-11-13,Stock purchase from ZESA Utility Payments,Purchases,,TelOne Business,expense,Supplier Payments,861.16,ZWL,EcoCash,PO-202511-868,
+TX0084,2025-11-14,Vehicle maintenance,Operations,,,expense,Operating Expenses,128.52,USD,Swipe/POS,,standard
+TX0074,2025-11-16,Stock purchase from Innscor Distribution,Purchases,,ZESA Utility Payments,expense,Supplier Payments,1253.21,USD,RTGS,PO-202511-299,standard
+TX0078,2025-11-18,Stock purchase from PPC Zimbabwe,Purchases,,ZESA Utility Payments,expense,Supplier Payments,1709.1,USD,RTGS,PO-202511-536,standard
+TX0079,2025-11-18,Stock purchase from ZESA Utility Payments,Purchases,,National Foods Ltd,expense,Supplier Payments,2010.41,XXX,Swipe/POS,PO-202511-560,standard
+TX0068,2025-11-20,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Customer Receipts,2958.35,BWP,RTGS,INV-202511-416,exempt
+TX0070,2025-11-20,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Other Income,2903.56,ZWL,RTGS,INV-202511-953,standard
+TX0081,2025-11-21,Bank charges,Operations,,,expense,Operating Expenses,107.97,USD,Cash,,standard
+TX0062,2025-11-22,Sale of goods - groceries,Sales,Kadoma Cash & Carry,,income,Sales - Wholesale,1405.73,ZAR,EcoCash,INV-202511-491,standard
+TX0066,2025-11-24,Sale of goods - hardware,Sales,Mutare Merchants,,income,Sales - Retail,1475.42,USD,Swipe/POS,INV-202511-690,standard
+TX0073,2025-11-25,Sale of goods - groceries,Sales,Kadoma Cash & Carry,,income,Sales - Wholesale,434.83,ZWL,Bank Transfer,INV-202511-250,standard
+TX0080,2025-11-25,Bank charges,Operations,,,expense,Operating Expenses,173.16,USD,RTGS,,zero_rated
+TX0071,2025-11-26,Sale of goods - clothing,Sales,Bulawayo Bulk Buyers,,income,Other Income,791.06,USD,Swipe/POS,INV-202511-552,exempt
+TX0063,2025-11-27,Sale of goods - electronics,Sales,Bulawayo Bulk Buyers,,income,Customer Receipts,828.42,ZAR,Bank Transfer,INV-202511-328,standard
+TX0060,2025-11-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0072,2025-11-29,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Customer Receipts,1593.22,USD,RTGS,INV-202511-779,exempt
+TX0076,2025-11-29,Stock purchase from Innscor Distribution,Purchases,,TelOne Business,expense,Supplier Payments,803.33,ZAR,RTGS,PO-202511-575,standard
+TX0086,2025-12-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202512,standard
+TX0088,2025-12-01,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,165.67,USD,RTGS,ZESA-202512,standard
+TX0113,2025-12-01,Marketing - flyers and social media,Operations,,,expense,Bank Charges,74.86,USD,EcoCash,,exempt
+TX0117,2025-12-03,Marketing - flyers and social media,Operations,,,expense,Transport,50.35,USD,RTGS,,zero_rated
+TX0118,2025-12-03,Bank charges,Operations,,,expense,Transport,131.61,USD,Swipe/POS,,exempt
+TX0111,2025-12-07,Stock purchase from Zimplow Holdings,Purchases,,ZESA Utility Payments,expense,Supplier Payments,935.95,ZWL,RTGS,PO-202512-878,standard
+TX0095,2025-12-08,Sale of goods - stationery,Sales,Chitungwiza Wholesalers,,income,Sales - Retail,3053.36,USD,Bank Transfer,INV-202512-304,standard
+TX0103,2025-12-08,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Other Income,1133.03,ZWL,Bank Transfer,INV-202512-868,zero_rated
+TX0110,2025-12-08,Stock purchase from Innscor Distribution,Purchases,,Zimplow Holdings,expense,Supplier Payments,1025.76,USD,RTGS,PO-202512-880,standard
+TX0116,2025-12-09,Vehicle maintenance,Operations,,,expense,Transport,184.42,USD,Swipe/POS,,zero_rated
+TX0112,2025-12-10,Stock purchase from Innscor Distribution,Purchases,,Zimplow Holdings,expense,Supplier Payments,981.37,USD,Cash,PO-202512-283,standard
+TX0114,2025-12-10,Bank charges,Operations,,,expense,Repairs & Maintenance,40.52,USD,EcoCash,,
+TX0115,2025-12-10,Vehicle maintenance,Operations,,,expense,Repairs & Maintenance,108.09,USD,Bank Transfer,,standard
+TX0093,2025-12-11,Sale of goods - groceries,Sales,Gweru General Store,,income,Customer Receipts,943.48,USD,Cash,INV-202512-879,zero_rated
+TX0104,2025-12-11,Sale of goods - stationery,Sales,Gweru General Store,,income,Customer Receipts,2187.97,ZWL,Bank Transfer,INV-202512-599,standard
+TX0105,2025-12-11,Stock purchase from Proplastics Ltd,Purchases,,Proplastics Ltd,expense,Supplier Payments,1578.32,ZAR,RTGS,PO-202512-295,
+TX0109,2025-12-12,Stock purchase from TelOne Business,Purchases,,SA Freight Logistics,expense,Supplier Payments,1060.82,ZWL,Swipe/POS,PO-202512-377,standard
+TX0094,2025-12-14,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Other Income,3051.17,USD,EcoCash,INV-202512-867,exempt
+TX0096,2025-12-16,Sale of goods - stationery,Sales,Highfield Hardware,,income,Other Income,877.56,ZWL,Cash,INV-202512-885,zero_rated
+TX0092,2025-12-19,Sale of goods - stationery,Sales,Mbare Musika Traders,,income,Other Income,1351.76,USD,Bank Transfer,INV-202512-987,zero_rated
+TX0100,2025-12-21,Sale of goods - hardware,Sales,Chitungwiza Wholesalers,,income,Other Income,360.32,ZWL,Swipe/POS,INV-202512-208,zero_rated
+TX0091,2025-12-22,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Other Income,1175.2,USD,Bank Transfer,INV-202512-737,exempt
+TX0099,2025-12-23,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Sales - Retail,890.69,ZAR,Cash,INV-202512-645,zero_rated
+TX0107,2025-12-23,Stock purchase from ZESA Utility Payments,Purchases,,ZESA Utility Payments,expense,Supplier Payments,2123.75,USD,EcoCash,PO-202512-401,standard
+TX0108,2025-12-23,Stock purchase from Zimplow Holdings,Purchases,,Proplastics Ltd,expense,Supplier Payments,1827.11,USD,Cash,PO-202512-584,standard
+TX0097,2025-12-24,Sale of goods - stationery,Sales,Borrowdale Boutique,,income,Customer Receipts,2002.1,USD,EcoCash,INV-202512-692,standard
+TX0106,2025-12-24,Stock purchase from TelOne Business,Purchases,,ZESA Utility Payments,expense,Supplier Payments,1576.91,USD,Bank Transfer,PO-202512-807,standard
+TX0102,2025-12-26,Sale of goods - clothing,Sales,Gweru General Store,,income,Other Income,973.75,BWP,Swipe/POS,INV-202512-945,exempt
+TX0101,2025-12-27,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Other Income,2088.53,BWP,Bank Transfer,INV-202512-851,exempt
+TX0087,2025-12-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0090,2025-12-29,Sale of goods - groceries,Sales,Gweru General Store,,income,Sales - Wholesale,2589.6,ZWL,Cash,INV-202512-546,zero_rated
+TX0098,2025-12-30,Sale of goods - electronics,Sales,Mutare Merchants,,income,Sales - Wholesale,1906.18,BWP,EcoCash,INV-202512-706,exempt
+TX0089,2025-12-31,Sale of goods - hardware,Sales,Kadoma Cash & Carry,,income,Other Income,1604.79,ZWL,Swipe/POS,INV-202512-651,exempt
+TX0119,2026-01-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202601,standard
+TX0124,2026-01-01,Sale of goods - electronics,Sales,Gweru General Store,,income,Other Income,378.95,USD,Cash,INV-202601-133,standard
+TX0123,2026-01-04,Sale of goods - groceries,Sales,Highfield Hardware,,income,Customer Receipts,3078.33,USD,EcoCash,INV-202601-260,standard
+TX0132,2026-01-04,Sale of goods - groceries,Sales,Bulawayo Bulk Buyers,,income,Other Income,1129.23,USD,Swipe/POS,INV-202601-395,exempt
+TX0131,2026-01-06,Sale of goods - clothing,Sales,Mutare Merchants,,income,Other Income,2944.02,ZWL,EcoCash,INV-202601-581,zero_rated
+TX0138,2026-01-06,Stock purchase from Proplastics Ltd,Purchases,,SA Freight Logistics,expense,Supplier Payments,331.45,USD,Swipe/POS,PO-202601-195,standard
+TX0126,2026-01-07,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Sales - Wholesale,2601.91,ZWL,Bank Transfer,INV-202601-372,standard
+TX0128,2026-01-09,Sale of goods - clothing,Sales,Avondale Essentials,,income,Other Income,1377.65,USD,Swipe/POS,INV-202601-182,exempt
+TX0127,2026-01-10,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Other Income,3425.68,USD,EcoCash,INV-202601-579,exempt
+TX0140,2026-01-10,Stock purchase from SA Freight Logistics,Purchases,,Proplastics Ltd,expense,Supplier Payments,1255.63,BWP,Swipe/POS,PO-202601-583,standard
+TX0144,2026-01-10,Marketing - flyers and social media,Operations,,,expense,Marketing,219.78,USD,Swipe/POS,,standard
+TX0129,2026-01-11,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Sales - Retail,1467.69,USD,EcoCash,INV-202601-334,exempt
+TX0146,2026-01-13,Vehicle maintenance,Operations,,,expense,Operating Expenses,193.92,USD,Bank Transfer,,exempt
+TX0135,2026-01-15,Stock purchase from TelOne Business,Purchases,,Delta Beverages Zim,expense,Supplier Payments,731.44,ZAR,Cash,PO-202601-737,standard
+TX0137,2026-01-15,Stock purchase from ZESA Utility Payments,Purchases,,Innscor Distribution,expense,Supplier Payments,366.4,BWP,RTGS,PO-202601-918,standard
+TX0145,2026-01-15,Marketing - flyers and social media,Operations,,,expense,Repairs & Maintenance,89.02,USD,RTGS,,exempt
+TX0133,2026-01-18,Stock purchase from Delta Beverages Zim,Purchases,,ZESA Utility Payments,expense,Supplier Payments,502.54,ZAR,Cash,PO-202601-431,standard
+TX0141,2026-01-18,Stock purchase from National Foods Ltd,Purchases,,TelOne Business,expense,Supplier Payments,738.4,USD,RTGS,PO-202601-620,standard
+TX0121,2026-01-20,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,159.07,USD,RTGS,ZESA-202601,standard
+TX0136,2026-01-21,Stock purchase from ZESA Utility Payments,Purchases,,Delta Beverages Zim,expense,Supplier Payments,768.18,ZAR,RTGS,PO-202601-234,standard
+TX0134,2026-01-25,Stock purchase from TelOne Business,Purchases,,SA Freight Logistics,expense,Supplier Payments,2197.33,USD,EcoCash,PO-202601-773,
+TX0139,2026-01-27,Stock purchase from Innscor Distribution,Purchases,,ZESA Utility Payments,expense,Supplier Payments,2478.24,USD,Bank Transfer,PO-202601-610,standard
+TX0120,2026-01-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0125,2026-01-28,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Sales - Wholesale,1012.29,USD,Cash,INV-202601-906,exempt
+TX0142,2026-01-28,Fuel and transport,Operations,,,expense,Operating Expenses,174.54,USD,Swipe/POS,,zero_rated
+TX0122,2026-01-30,Sale of goods - electronics,Sales,Kadoma Cash & Carry,,income,Other Income,1310.15,ZAR,Cash,INV-202601-682,exempt
+TX0143,2026-01-30,Marketing - flyers and social media,Operations,,,expense,Operating Expenses,184.11,USD,Cash,,exempt
+TX0130,2026-01-31,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Sales - Retail,1904.36,ZAR,Bank Transfer,INV-202601-581,exempt
+TX0147,2026-02-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202602,standard
+TX0168,2026-02-04,Stock purchase from ZESA Utility Payments,Purchases,,PPC Zimbabwe,expense,Supplier Payments,1847.51,USD,Cash,PO-202602-698,standard
+TX0172,2026-02-04,Stock purchase from Innscor Distribution,Purchases,,Zimplow Holdings,expense,Supplier Payments,2340.7,ZMW,Bank Transfer,PO-202602-497,standard
+TX0176,2026-02-04,Office supplies,Operations,,,expense,Marketing,200.34,USD,Cash,,standard
+TX0164,2026-02-05,Sale of goods - stationery,Sales,Kadoma Cash & Carry,,income,Customer Receipts,1262.83,USD,Swipe/POS,INV-202602-279,
+TX0157,2026-02-06,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Other Income,2567.18,ZWL,RTGS,INV-202602-799,standard
+TX0158,2026-02-08,Sale of goods - electronics,Sales,Kadoma Cash & Carry,,income,Other Income,1928.63,USD,Cash,INV-202602-782,standard
+TX0163,2026-02-09,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Sales - Retail,729.9,USD,Cash,INV-202602-907,zero_rated
+TX0159,2026-02-10,Sale of goods - clothing,Sales,Borrowdale Boutique,,income,Sales - Retail,1569.02,EUR,Swipe/POS,INV-202602-453,exempt
+TX0166,2026-02-11,Stock purchase from Innscor Distribution,Purchases,,ZESA Utility Payments,expense,Supplier Payments,2514.65,ZWL,Bank Transfer,PO-202602-872,standard
+TX0156,2026-02-12,Sale of goods - hardware,Sales,Mutare Merchants,,income,Sales - Wholesale,321.16,USD,Bank Transfer,INV-202602-643,zero_rated
+TX0161,2026-02-12,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Customer Receipts,1313.16,USD,EcoCash,INV-202602-949,
+TX0165,2026-02-12,Sale of goods - clothing,Sales,Avondale Essentials,,income,Customer Receipts,1795.19,USD,Bank Transfer,INV-202602-363,zero_rated
+TX0149,2026-02-13,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,103.36,USD,RTGS,ZESA-202602,standard
+TX0177,2026-02-13,Office supplies,Operations,,,expense,Bank Charges,213.64,USD,Swipe/POS,,standard
+TX0171,2026-02-14,Stock purchase from Innscor Distribution,Purchases,,National Foods Ltd,expense,Supplier Payments,404.3,USD,EcoCash,PO-202602-411,standard
+TX0150,2026-02-16,Sale of goods - electronics,Sales,Mutare Merchants,,income,Sales - Wholesale,1120.44,USD,Swipe/POS,INV-202602-137,standard
+TX0154,2026-02-18,Sale of goods - stationery,Sales,Mbare Musika Traders,,income,Sales - Wholesale,1638.24,EUR,Cash,INV-202602-332,exempt
+TX0170,2026-02-18,Stock purchase from PPC Zimbabwe,Purchases,,Zimplow Holdings,expense,Supplier Payments,1789.6,ZWL,Swipe/POS,PO-202602-817,standard
+TX0152,2026-02-21,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Other Income,1400.43,XXX,Cash,INV-202602-446,exempt
+TX0169,2026-02-21,Stock purchase from PPC Zimbabwe,Purchases,,Innscor Distribution,expense,Supplier Payments,1852.12,USD,Swipe/POS,PO-202602-125,standard
+TX0173,2026-02-22,Stock purchase from SA Freight Logistics,Purchases,,TelOne Business,expense,Supplier Payments,1650.88,USD,Bank Transfer,PO-202602-524,standard
+TX0160,2026-02-23,Sale of goods - hardware,Sales,Gweru General Store,,income,Customer Receipts,3084.19,USD,Bank Transfer,INV-202602-493,zero_rated
+TX0175,2026-02-23,Office supplies,Operations,,,expense,Bank Charges,108.68,USD,Bank Transfer,,zero_rated
+TX0155,2026-02-25,Sale of goods - stationery,Sales,Gweru General Store,,income,Sales - Wholesale,3133.93,USD,Cash,INV-202602-129,standard
+TX0174,2026-02-27,Vehicle maintenance,Operations,,,expense,Marketing,101.62,USD,Cash,,standard
+TX0148,2026-02-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0151,2026-02-28,Sale of goods - stationery,Sales,Gweru General Store,,income,Sales - Retail,1950.05,USD,RTGS,INV-202602-567,standard
+TX0153,2026-02-28,Sale of goods - hardware,Sales,Avondale Essentials,,income,Other Income,2132.0,ZWL,Cash,INV-202602-741,exempt
+TX0162,2026-02-28,Sale of goods - stationery,Sales,Gweru General Store,,income,Customer Receipts,174.7,USD,Bank Transfer,INV-202602-721,zero_rated
+TX0167,2026-02-28,Stock purchase from TelOne Business,Purchases,,SA Freight Logistics,expense,Supplier Payments,1141.28,BWP,Swipe/POS,PO-202602-114,standard
+TX0178,2026-03-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202603,standard
+TX0185,2026-03-04,Sale of goods - stationery,Sales,Gweru General Store,,income,Other Income,1433.93,USD,Cash,INV-202603-625,exempt
+TX0183,2026-03-05,Sale of goods - groceries,Sales,Avondale Essentials,,income,Customer Receipts,2768.14,USD,Bank Transfer,INV-202603-212,exempt
+TX0188,2026-03-05,Sale of goods - hardware,Sales,Avondale Essentials,,income,Customer Receipts,602.42,USD,Swipe/POS,INV-202603-711,exempt
+TX0194,2026-03-05,Sale of goods - electronics,Sales,Highfield Hardware,,income,Sales - Retail,1697.61,USD,Cash,INV-202603-965,exempt
+TX0198,2026-03-07,Stock purchase from TelOne Business,Purchases,,TelOne Business,expense,Supplier Payments,1343.39,ZWL,Bank Transfer,PO-202603-478,standard
+TX0206,2026-03-08,Marketing - flyers and social media,Operations,,,expense,Marketing,186.67,USD,Cash,,standard
+TX0196,2026-03-09,Stock purchase from Proplastics Ltd,Purchases,,PPC Zimbabwe,expense,Supplier Payments,1107.35,USD,Bank Transfer,PO-202603-990,standard
+TX0200,2026-03-09,Stock purchase from ZESA Utility Payments,Purchases,,TelOne Business,expense,Supplier Payments,1417.02,ZWL,Swipe/POS,PO-202603-524,standard
+TX0199,2026-03-11,Stock purchase from Innscor Distribution,Purchases,,Delta Beverages Zim,expense,Supplier Payments,657.83,USD,RTGS,PO-202603-150,standard
+TX0184,2026-03-12,Sale of goods - groceries,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,552.0,ZAR,Bank Transfer,INV-202603-371,standard
+TX0193,2026-03-12,Sale of goods - electronics,Sales,Chitungwiza Wholesalers,,income,Customer Receipts,522.81,USD,RTGS,INV-202603-419,zero_rated
+TX0187,2026-03-13,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Other Income,1610.89,USD,Swipe/POS,INV-202603-175,standard
+TX0190,2026-03-13,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Customer Receipts,2673.63,USD,Swipe/POS,INV-202603-420,
+TX0207,2026-03-13,Fuel and transport,Operations,,,expense,Repairs & Maintenance,23.75,USD,EcoCash,,zero_rated
+TX0189,2026-03-14,Sale of goods - stationery,Sales,Mbare Musika Traders,,income,Sales - Wholesale,1691.93,USD,Swipe/POS,INV-202603-562,standard
+TX0182,2026-03-19,Sale of goods - groceries,Sales,Highfield Hardware,,income,Customer Receipts,1840.33,ZAR,Bank Transfer,INV-202603-907,exempt
+TX0195,2026-03-19,Sale of goods - groceries,Sales,Mutare Merchants,,income,Sales - Retail,2475.95,USD,RTGS,INV-202603-773,exempt
+TX0202,2026-03-19,Stock purchase from ZESA Utility Payments,Purchases,,SA Freight Logistics,expense,Supplier Payments,1834.4,ZWL,EcoCash,PO-202603-325,standard
+TX0208,2026-03-19,Vehicle maintenance,Operations,,,expense,Marketing,100.88,USD,Swipe/POS,,zero_rated
+TX0203,2026-03-20,Stock purchase from Delta Beverages Zim,Purchases,,Delta Beverages Zim,expense,Supplier Payments,770.17,USD,Bank Transfer,PO-202603-885,standard
+TX0180,2026-03-22,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,101.21,USD,RTGS,ZESA-202603,standard
+TX0191,2026-03-22,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Sales - Retail,3058.46,USD,EcoCash,INV-202603-195,zero_rated
+TX0197,2026-03-22,Stock purchase from TelOne Business,Purchases,,Innscor Distribution,expense,Supplier Payments,626.31,USD,EcoCash,PO-202603-193,standard
+TX0205,2026-03-24,Vehicle maintenance,Operations,,,expense,Bank Charges,45.84,USD,RTGS,,exempt
+TX0201,2026-03-25,Stock purchase from SA Freight Logistics,Purchases,,Innscor Distribution,expense,Supplier Payments,1093.9,USD,EcoCash,PO-202603-390,standard
+TX0204,2026-03-25,Office supplies,Operations,,,expense,Operating Expenses,85.62,USD,EcoCash,,zero_rated
+TX0181,2026-03-26,Sale of goods - hardware,Sales,Highfield Hardware,,income,Sales - Wholesale,215.14,ZWL,RTGS,INV-202603-310,standard
+TX0192,2026-03-26,Sale of goods - groceries,Sales,Avondale Essentials,,income,Sales - Retail,2403.33,USD,RTGS,INV-202603-675,exempt
+TX0179,2026-03-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0186,2026-03-31,Sale of goods - clothing,Sales,Chitungwiza Wholesalers,,income,Customer Receipts,1686.71,USD,Swipe/POS,INV-202603-758,standard
+TX0209,2026-04-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202604,standard
+TX0220,2026-04-02,Sale of goods - electronics,Sales,Highfield Hardware,,income,Customer Receipts,2403.71,BWP,RTGS,INV-202604-587,exempt
+TX0211,2026-04-04,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,120.5,USD,RTGS,ZESA-202604,standard
+TX0221,2026-04-04,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Sales - Wholesale,338.71,USD,EcoCash,INV-202604-353,exempt
+TX0215,2026-04-05,Sale of goods - hardware,Sales,Highfield Hardware,,income,Sales - Wholesale,870.62,ZAR,RTGS,INV-202604-256,exempt
+TX0219,2026-04-10,Sale of goods - stationery,Sales,Mbare Musika Traders,,income,Other Income,1274.65,USD,Swipe/POS,INV-202604-694,exempt
+TX0228,2026-04-11,Stock purchase from ZESA Utility Payments,Purchases,,Zimplow Holdings,expense,Supplier Payments,821.05,BWP,Bank Transfer,PO-202604-258,standard
+TX0213,2026-04-13,Sale of goods - hardware,Sales,Bulawayo Bulk Buyers,,income,Sales - Wholesale,1748.09,ZWL,Cash,INV-202604-897,standard
+TX0227,2026-04-14,Stock purchase from SA Freight Logistics,Purchases,,PPC Zimbabwe,expense,Supplier Payments,341.93,ZWL,Cash,PO-202604-284,standard
+TX0212,2026-04-15,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Other Income,3040.22,USD,EcoCash,INV-202604-349,
+TX0232,2026-04-15,Stock purchase from Proplastics Ltd,Purchases,,ZESA Utility Payments,expense,Supplier Payments,838.21,ZWL,Bank Transfer,PO-202604-416,standard
+TX0234,2026-04-15,Office supplies,Operations,,,expense,Repairs & Maintenance,120.58,USD,Swipe/POS,,standard
+TX0238,2026-04-15,Marketing - flyers and social media,Operations,,,expense,Bank Charges,186.21,USD,EcoCash,,standard
+TX0214,2026-04-17,Sale of goods - clothing,Sales,Highfield Hardware,,income,Customer Receipts,2081.34,XXX,Cash,INV-202604-844,exempt
+TX0222,2026-04-17,Sale of goods - clothing,Sales,Borrowdale Boutique,,income,Customer Receipts,1490.24,USD,Cash,INV-202604-389,zero_rated
+TX0218,2026-04-19,Sale of goods - stationery,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,2578.81,ZWL,Cash,INV-202604-572,zero_rated
+TX0223,2026-04-20,Sale of goods - stationery,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,1182.02,USD,Cash,INV-202604-196,exempt
+TX0231,2026-04-20,Stock purchase from National Foods Ltd,Purchases,,ZESA Utility Payments,expense,Supplier Payments,400.49,ZWL,Cash,PO-202604-792,standard
+TX0216,2026-04-21,Sale of goods - electronics,Sales,Gweru General Store,,income,Other Income,3051.44,USD,RTGS,INV-202604-758,exempt
+TX0217,2026-04-21,Sale of goods - hardware,Sales,Borrowdale Boutique,,income,Other Income,1135.79,ZMW,EcoCash,INV-202604-580,zero_rated
+TX0225,2026-04-21,Stock purchase from TelOne Business,Purchases,,National Foods Ltd,expense,Supplier Payments,1668.59,USD,EcoCash,PO-202604-417,standard
+TX0226,2026-04-21,Stock purchase from PPC Zimbabwe,Purchases,,National Foods Ltd,expense,Supplier Payments,1841.27,ZWL,RTGS,PO-202604-195,standard
+TX0236,2026-04-21,Vehicle maintenance,Operations,,,expense,Operating Expenses,130.91,USD,EcoCash,,exempt
+TX0224,2026-04-24,Stock purchase from National Foods Ltd,Purchases,,PPC Zimbabwe,expense,Supplier Payments,487.45,USD,Bank Transfer,PO-202604-458,standard
+TX0235,2026-04-27,Bank charges,Operations,,,expense,Marketing,47.68,USD,Cash,,standard
+TX0239,2026-04-27,Vehicle maintenance,Operations,,,expense,Operating Expenses,206.09,USD,Swipe/POS,,standard
+TX0210,2026-04-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0229,2026-04-28,Stock purchase from Innscor Distribution,Purchases,,SA Freight Logistics,expense,Supplier Payments,2073.01,USD,RTGS,PO-202604-138,standard
+TX0237,2026-04-28,Marketing - flyers and social media,Operations,,,expense,Transport,77.01,USD,Bank Transfer,,zero_rated
+TX0230,2026-04-29,Stock purchase from National Foods Ltd,Purchases,,TelOne Business,expense,Supplier Payments,654.78,ZWL,Bank Transfer,PO-202604-951,standard
+TX0233,2026-04-29,Bank charges,Operations,,,expense,Operating Expenses,155.66,USD,RTGS,,zero_rated
+TX0240,2026-05-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202605,standard
+TX0250,2026-05-01,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Customer Receipts,923.63,ZMW,Bank Transfer,INV-202605-850,exempt
+TX0263,2026-05-02,Stock purchase from National Foods Ltd,Purchases,,Innscor Distribution,expense,Supplier Payments,842.79,ZAR,Cash,PO-202605-470,standard
+TX0270,2026-05-06,Vehicle maintenance,Operations,,,expense,Transport,182.1,USD,Cash,,exempt
+TX0245,2026-05-07,Sale of goods - groceries,Sales,Avondale Essentials,,income,Other Income,207.96,GBP,EcoCash,INV-202605-894,zero_rated
+TX0243,2026-05-08,Sale of goods - stationery,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,398.9,USD,Cash,INV-202605-910,standard
+TX0246,2026-05-08,Sale of goods - electronics,Sales,Gweru General Store,,income,Sales - Retail,521.64,USD,EcoCash,INV-202605-956,zero_rated
+TX0261,2026-05-09,Stock purchase from Delta Beverages Zim,Purchases,,Innscor Distribution,expense,Supplier Payments,1843.72,ZMW,Swipe/POS,PO-202605-472,standard
+TX0268,2026-05-09,Office supplies,Operations,,,expense,Repairs & Maintenance,62.91,USD,RTGS,,zero_rated
+TX0253,2026-05-10,Sale of goods - groceries,Sales,Chitungwiza Wholesalers,,income,Sales - Wholesale,1545.92,ZAR,EcoCash,INV-202605-423,zero_rated
+TX0259,2026-05-10,Stock purchase from Proplastics Ltd,Purchases,,ZESA Utility Payments,expense,Supplier Payments,1686.03,USD,Swipe/POS,PO-202605-270,standard
+TX0257,2026-05-12,Stock purchase from SA Freight Logistics,Purchases,,Proplastics Ltd,expense,Supplier Payments,2142.64,ZWL,Swipe/POS,PO-202605-180,standard
+TX0260,2026-05-12,Stock purchase from ZESA Utility Payments,Purchases,,Delta Beverages Zim,expense,Supplier Payments,1971.67,ZWL,Cash,PO-202605-729,standard
+TX0265,2026-05-12,Vehicle maintenance,Operations,,,expense,Transport,134.78,USD,RTGS,,zero_rated
+TX0242,2026-05-13,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,130.2,USD,RTGS,ZESA-202605,standard
+TX0266,2026-05-13,Office supplies,Operations,,,expense,Operating Expenses,69.92,USD,EcoCash,,standard
+TX0248,2026-05-14,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Customer Receipts,883.72,ZWL,EcoCash,INV-202605-638,exempt
+TX0247,2026-05-17,Sale of goods - clothing,Sales,Highfield Hardware,,income,Sales - Wholesale,200.13,ZWL,Cash,INV-202605-539,standard
+TX0249,2026-05-18,Sale of goods - stationery,Sales,Mutare Merchants,,income,Other Income,3164.41,USD,EcoCash,INV-202605-750,zero_rated
+TX0269,2026-05-23,Vehicle maintenance,Operations,,,expense,Bank Charges,44.53,USD,EcoCash,,zero_rated
+TX0251,2026-05-24,Sale of goods - hardware,Sales,Borrowdale Boutique,,income,Sales - Retail,2503.08,ZWL,Cash,INV-202605-659,zero_rated
+TX0256,2026-05-24,Stock purchase from ZESA Utility Payments,Purchases,,TelOne Business,expense,Supplier Payments,1079.78,EUR,Bank Transfer,PO-202605-608,standard
+TX0262,2026-05-24,Stock purchase from National Foods Ltd,Purchases,,Delta Beverages Zim,expense,Supplier Payments,628.39,USD,RTGS,PO-202605-794,standard
+TX0267,2026-05-24,Bank charges,Operations,,,expense,Repairs & Maintenance,123.55,USD,RTGS,,standard
+TX0252,2026-05-25,Sale of goods - electronics,Sales,Gweru General Store,,income,Sales - Wholesale,684.02,ZAR,Bank Transfer,INV-202605-164,exempt
+TX0255,2026-05-25,Stock purchase from Delta Beverages Zim,Purchases,,PPC Zimbabwe,expense,Supplier Payments,928.4,USD,Cash,PO-202605-547,standard
+TX0244,2026-05-27,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Other Income,1024.98,USD,Swipe/POS,INV-202605-730,standard
+TX0254,2026-05-27,Stock purchase from SA Freight Logistics,Purchases,,ZESA Utility Payments,expense,Supplier Payments,882.62,USD,Bank Transfer,PO-202605-392,standard
+TX0258,2026-05-27,Stock purchase from National Foods Ltd,Purchases,,SA Freight Logistics,expense,Supplier Payments,975.66,USD,EcoCash,PO-202605-181,standard
+TX0241,2026-05-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0264,2026-05-31,Marketing - flyers and social media,Operations,,,expense,Transport,141.02,USD,Swipe/POS,,zero_rated
+TX0271,2026-06-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202606,standard
+TX0279,2026-06-04,Sale of goods - clothing,Sales,Borrowdale Boutique,,income,Customer Receipts,319.01,GBP,Bank Transfer,INV-202606-265,zero_rated
+TX0287,2026-06-04,Sale of goods - hardware,Sales,Gweru General Store,,income,Sales - Wholesale,887.3,USD,Bank Transfer,INV-202606-199,standard
+TX0276,2026-06-05,Sale of goods - clothing,Sales,Mbare Musika Traders,,income,Sales - Retail,9000.0,USD,Cash,INV-202606-507,exempt
+TX0298,2026-06-05,Office supplies,Operations,,,expense,Repairs & Maintenance,123.87,USD,Bank Transfer,,exempt
+TX0300,2026-06-06,Vehicle maintenance,Operations,,,expense,Marketing,167.86,XXX,Cash,,exempt
+TX0294,2026-06-07,Stock purchase from PPC Zimbabwe,Purchases,,SA Freight Logistics,expense,Supplier Payments,963.78,ZWL,Swipe/POS,PO-202606-616,standard
+TX0275,2026-06-08,Sale of goods - electronics,Sales,Chitungwiza Wholesalers,,income,Customer Receipts,2565.8,ZMW,RTGS,INV-202606-686,zero_rated
+TX0291,2026-06-08,Stock purchase from Zimplow Holdings,Purchases,,PPC Zimbabwe,expense,Supplier Payments,411.91,USD,Cash,PO-202606-606,standard
+TX0283,2026-06-09,Sale of goods - groceries,Sales,Mutare Merchants,,income,Sales - Retail,2501.62,BWP,Swipe/POS,INV-202606-742,exempt
+TX0293,2026-06-09,Stock purchase from PPC Zimbabwe,Purchases,,TelOne Business,expense,Supplier Payments,1141.66,USD,Swipe/POS,PO-202606-152,standard
+TX0301,2026-06-11,Marketing - flyers and social media,Operations,,,expense,Marketing,126.47,USD,RTGS,,zero_rated
+TX0273,2026-06-12,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,150.95,USD,RTGS,ZESA-202606,standard
+TX0278,2026-06-12,Sale of goods - groceries,Sales,Avondale Essentials,,income,Sales - Wholesale,2224.33,USD,Bank Transfer,INV-202606-543,exempt
+TX0284,2026-06-16,Sale of goods - groceries,Sales,Mutare Merchants,,income,Customer Receipts,3067.78,USD,Swipe/POS,INV-202606-174,
+TX0285,2026-06-16,Sale of goods - electronics,Sales,Highfield Hardware,,income,Customer Receipts,1490.8,USD,RTGS,INV-202606-247,zero_rated
+TX0280,2026-06-17,Sale of goods - hardware,Sales,Mbare Musika Traders,,income,Customer Receipts,837.68,BWP,Bank Transfer,INV-202606-750,exempt
+TX0295,2026-06-18,Stock purchase from Proplastics Ltd,Purchases,,Innscor Distribution,expense,Supplier Payments,595.93,USD,EcoCash,PO-202606-503,standard
+TX0289,2026-06-19,Stock purchase from PPC Zimbabwe,Purchases,,Zimplow Holdings,expense,Supplier Payments,2055.18,USD,Swipe/POS,PO-202606-627,
+TX0281,2026-06-20,Sale of goods - clothing,Sales,Mbare Musika Traders,,income,Sales - Wholesale,2056.32,USD,RTGS,INV-202606-694,standard
+TX0297,2026-06-20,Marketing - flyers and social media,Operations,,,expense,Repairs & Maintenance,120.02,XXX,EcoCash,,standard
+TX0277,2026-06-25,Sale of goods - electronics,Sales,Mbare Musika Traders,,income,Sales - Wholesale,1753.37,ZWL,Cash,INV-202606-757,standard
+TX0296,2026-06-26,Office supplies,Operations,,,expense,Marketing,207.79,USD,Bank Transfer,,standard
+TX0292,2026-06-27,Stock purchase from ZESA Utility Payments,Purchases,,Proplastics Ltd,expense,Supplier Payments,1534.39,ZWL,EcoCash,PO-202606-541,standard
+TX0272,2026-06-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0274,2026-06-28,Sale of goods - groceries,Sales,Borrowdale Boutique,,income,Customer Receipts,2868.56,USD,RTGS,INV-202606-329,standard
+TX0286,2026-06-28,Sale of goods - hardware,Sales,Mutare Merchants,,income,Sales - Wholesale,1123.91,ZAR,Cash,INV-202606-627,exempt
+TX0288,2026-06-28,Stock purchase from TelOne Business,Purchases,,Zimplow Holdings,expense,Supplier Payments,2514.18,BWP,Bank Transfer,PO-202606-933,standard
+TX0365,2026-06-28,Stock purchase from TelOne Business (possible duplicate submission),Purchases,,Zimplow Holdings,expense,Supplier Payments,2514.18,BWP,Bank Transfer,PO-202606-933,standard
+TX0282,2026-06-29,Sale of goods - clothing,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,2054.66,USD,EcoCash,INV-202606-183,standard
+TX0290,2026-06-29,Stock purchase from Proplastics Ltd,Purchases,,ZESA Utility Payments,expense,Supplier Payments,353.31,USD,Swipe/POS,PO-202606-617,standard
+TX0299,2026-06-29,Marketing - flyers and social media,Operations,,,expense,Bank Charges,85.59,USD,RTGS,,zero_rated
+TX0302,2026-07-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202607,standard
+TX0320,2026-07-02,Stock purchase from Innscor Distribution,Purchases,,Zimplow Holdings,expense,Supplier Payments,1530.85,USD,EcoCash,PO-202607-279,standard
+TX0318,2026-07-05,Stock purchase from Delta Beverages Zim,Purchases,,SA Freight Logistics,expense,Supplier Payments,2549.19,ZWL,Bank Transfer,PO-202607-516,standard
+TX0328,2026-07-05,Vehicle maintenance,Operations,,,expense,Operating Expenses,207.17,USD,EcoCash,,zero_rated
+TX0325,2026-07-06,Stock purchase from ZESA Utility Payments,Purchases,,Proplastics Ltd,expense,Supplier Payments,1952.78,USD,EcoCash,PO-202607-854,standard
+TX0317,2026-07-08,Large one-off payment to Innscor Distribution,Purchases,,Innscor Distribution,expense,Supplier Payments,18500.0,USD,Swipe/POS,PO-202607-202,standard
+TX0331,2026-07-08,Fuel and transport,Operations,,,expense,Transport,113.08,USD,Bank Transfer,,zero_rated
+TX0316,2026-07-09,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Sales - Wholesale,1864.15,USD,Bank Transfer,INV-202607-151,exempt
+TX0312,2026-07-10,Sale of goods - hardware,Sales,Highfield Hardware,,income,Other Income,3021.53,USD,Cash,INV-202607-591,zero_rated
+TX0326,2026-07-10,Stock purchase from Zimplow Holdings,Purchases,,National Foods Ltd,expense,Supplier Payments,1705.2,USD,Swipe/POS,PO-202607-946,standard
+TX0308,2026-07-11,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Other Income,207.76,USD,Bank Transfer,INV-202607-520,exempt
+TX0323,2026-07-11,Stock purchase from Proplastics Ltd,Purchases,,ZESA Utility Payments,expense,Supplier Payments,2574.93,USD,RTGS,PO-202607-636,standard
+TX0329,2026-07-13,Bank charges,Operations,,,expense,Repairs & Maintenance,170.75,USD,Cash,,zero_rated
+TX0305,2026-07-14,Sale of goods - clothing,Sales,Kadoma Cash & Carry,,income,Sales - Retail,484.29,USD,RTGS,INV-202607-585,zero_rated
+TX0304,2026-07-16,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,161.57,USD,RTGS,ZESA-202607,standard
+TX0327,2026-07-17,Office supplies,Operations,,,expense,Transport,100.17,USD,EcoCash,,standard
+TX0330,2026-07-19,Marketing - flyers and social media,Operations,,,expense,Transport,72.31,USD,Cash,,exempt
+TX0333,2026-07-20,Bank charges,Operations,,,expense,Bank Charges,211.47,USD,Swipe/POS,,standard
+TX0311,2026-07-21,Sale of goods - hardware,Sales,Gweru General Store,,income,Sales - Wholesale,2348.82,ZAR,Bank Transfer,INV-202607-385,exempt
+TX0315,2026-07-21,Sale of goods - hardware,Sales,Gweru General Store,,income,Sales - Wholesale,2968.23,USD,Bank Transfer,INV-202607-947,exempt
+TX0332,2026-07-22,Marketing - flyers and social media,Operations,,,expense,Operating Expenses,158.06,USD,Cash,,zero_rated
+TX0313,2026-07-24,Sale of goods - hardware,Sales,Kadoma Cash & Carry,,income,Sales - Retail,3000.18,ZWL,RTGS,INV-202607-792,exempt
+TX0306,2026-07-25,Sale of goods - clothing,Sales,Highfield Hardware,,income,Sales - Retail,2537.86,BWP,RTGS,INV-202607-591,standard
+TX0307,2026-07-25,Sale of goods - electronics,Sales,Borrowdale Boutique,,income,Sales - Wholesale,2349.61,USD,EcoCash,INV-202607-686,exempt
+TX0314,2026-07-27,Sale of goods - hardware,Sales,Borrowdale Boutique,,income,Customer Receipts,3139.49,USD,EcoCash,INV-202607-394,exempt
+TX0321,2026-07-27,Stock purchase from National Foods Ltd,Purchases,,Delta Beverages Zim,expense,Supplier Payments,2593.5,USD,Swipe/POS,PO-202607-906,standard
+TX0303,2026-07-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0309,2026-07-28,Sale of goods - stationery,Sales,Borrowdale Boutique,,income,Sales - Wholesale,2957.59,ZAR,RTGS,INV-202607-432,exempt
+TX0319,2026-07-29,Stock purchase from ZESA Utility Payments,Purchases,,ZESA Utility Payments,expense,Supplier Payments,1796.24,ZWL,Cash,PO-202607-428,standard
+TX0322,2026-07-30,Stock purchase from Proplastics Ltd,Purchases,,Delta Beverages Zim,expense,Supplier Payments,321.31,USD,RTGS,PO-202607-717,standard
+TX0310,2026-07-31,Sale of goods - groceries,Sales,Gweru General Store,,income,Customer Receipts,1299.32,USD,RTGS,INV-202607-462,exempt
+TX0324,2026-07-31,Stock purchase from National Foods Ltd,Purchases,,SA Freight Logistics,expense,Supplier Payments,1376.45,USD,Bank Transfer,PO-202607-928,standard
+TX0334,2026-08-01,Monthly shop rent - Borrowdale premises,Operations,,Borrowdale Properties,expense,Rent,850.0,USD,Bank Transfer,INV-RENT-202608,standard
+TX0359,2026-08-02,Stock purchase from Innscor Distribution,Purchases,,Zimplow Holdings,expense,Supplier Payments,2150.7,ZWL,RTGS,PO-202608-841,standard
+TX0358,2026-08-03,Stock purchase from SA Freight Logistics,Purchases,,Zimplow Holdings,expense,Supplier Payments,418.53,ZAR,Swipe/POS,PO-202608-789,standard
+TX0356,2026-08-05,Stock purchase from ZESA Utility Payments,Purchases,,Delta Beverages Zim,expense,Supplier Payments,1593.49,ZAR,Swipe/POS,PO-202608-670,standard
+TX0355,2026-08-06,Stock purchase from SA Freight Logistics,Purchases,,ZESA Utility Payments,expense,Supplier Payments,854.23,USD,Bank Transfer,PO-202608-407,standard
+TX0339,2026-08-07,Sale of goods - clothing,Sales,Avondale Essentials,,income,Sales - Wholesale,2903.81,ZAR,Bank Transfer,INV-202608-435,exempt
+TX0350,2026-08-07,Sale of goods - stationery,Sales,Borrowdale Boutique,,income,Customer Receipts,864.73,USD,Bank Transfer,INV-202608-935,exempt
+TX0360,2026-08-07,Stock purchase from ZESA Utility Payments,Purchases,,Zimplow Holdings,expense,Supplier Payments,2299.79,ZWL,Cash,PO-202608-410,standard
+TX0361,2026-08-07,Bank charges,Operations,,,expense,Transport,169.38,USD,Swipe/POS,,standard
+TX0346,2026-08-08,Sale of goods - stationery,Sales,Chitungwiza Wholesalers,,income,Customer Receipts,538.41,USD,Swipe/POS,INV-202608-789,exempt
+TX0364,2026-08-09,Office supplies,Operations,,,expense,Marketing,196.56,USD,Swipe/POS,,standard
+TX0363,2026-08-11,Office supplies,Operations,,,expense,Repairs & Maintenance,113.25,USD,Cash,,zero_rated
+TX0357,2026-08-13,Stock purchase from Zimplow Holdings,Purchases,,Proplastics Ltd,expense,Supplier Payments,767.67,USD,EcoCash,PO-202608-560,standard
+TX0352,2026-08-14,Stock purchase from Proplastics Ltd,Purchases,,Proplastics Ltd,expense,Supplier Payments,440.2,USD,RTGS,PO-202608-852,standard
+TX0336,2026-08-15,ZESA electricity bill,Operations,,ZESA Utility Payments,expense,Utilities,154.77,USD,RTGS,ZESA-202608,standard
+TX0338,2026-08-15,Sale of goods - clothing,Sales,Bulawayo Bulk Buyers,,income,Sales - Retail,399.7,EUR,RTGS,INV-202608-214,standard
+TX0341,2026-08-15,Sale of goods - clothing,Sales,Chitungwiza Wholesalers,,income,Other Income,1715.41,USD,Cash,INV-202608-840,standard
+TX0349,2026-08-20,Sale of goods - stationery,Sales,Gweru General Store,,income,Sales - Retail,355.24,USD,Bank Transfer,INV-202608-858,standard
+TX0351,2026-08-20,Stock purchase from PPC Zimbabwe,Purchases,,Zimplow Holdings,expense,Supplier Payments,994.06,USD,Bank Transfer,PO-202608-776,standard
+TX0353,2026-08-21,Stock purchase from TelOne Business,Purchases,,SA Freight Logistics,expense,Supplier Payments,1439.93,GBP,Cash,PO-202608-758,standard
+TX0345,2026-08-22,Sale of goods - clothing,Sales,Borrowdale Boutique,,income,Customer Receipts,2232.33,USD,EcoCash,INV-202608-282,exempt
+TX0340,2026-08-23,Sale of goods - clothing,Sales,Gweru General Store,,income,Sales - Retail,2224.9,USD,RTGS,INV-202608-556,standard
+TX0362,2026-08-23,Marketing - flyers and social media,Operations,,,expense,Bank Charges,99.33,USD,Bank Transfer,,exempt
+TX0342,2026-08-24,Sale of goods - groceries,Sales,Mbare Musika Traders,,income,Sales - Retail,2640.18,USD,Swipe/POS,INV-202608-452,exempt
+TX0344,2026-08-24,Sale of goods - electronics,Sales,Bulawayo Bulk Buyers,,income,Other Income,2485.77,ZAR,Swipe/POS,INV-202608-990,zero_rated
+TX0348,2026-08-25,Sale of goods - stationery,Sales,Chitungwiza Wholesalers,,income,Other Income,2819.38,USD,RTGS,INV-202608-884,standard
+TX0354,2026-08-26,Stock purchase from SA Freight Logistics,Purchases,,PPC Zimbabwe,expense,Supplier Payments,1901.51,ZWL,Swipe/POS,PO-202608-252,standard
+TX0347,2026-08-27,Sale of goods - groceries,Sales,Highfield Hardware,,income,Other Income,1772.4,USD,Cash,INV-202608-258,zero_rated
+TX0335,2026-08-28,Staff salaries - 6 employees,Payroll,,,expense,Salaries,2400.0,USD,Bank Transfer,,exempt
+TX0337,2026-08-30,Sale of goods - electronics,Sales,Avondale Essentials,,income,Sales - Wholesale,2290.92,USD,Bank Transfer,INV-202608-796,exempt
+TX0343,2026-08-30,Sale of goods - stationery,Sales,Gweru General Store,,income,Sales - Retail,3182.08,USD,Cash,INV-202608-518,standard
