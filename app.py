@@ -45,7 +45,10 @@ from reports.report_generator import (
     build_transactions_csv, export_pdf_if_available,
 )
 from rules.vat_rules import DISCLAIMER, VAT_RATES, calculate_vat_summary, vat_by_category
-from services.auth import User, can_access_page, create_user, ensure_users_table, user_count, verify_user
+from services.auth import (
+    ROLES, User, admin_count, can_access_page, create_user, delete_user, ensure_users_table,
+    get_user, list_users, set_role, update_password, user_count, validate_new_password, verify_user,
+)
 from services.exchange_rates import get_live_rate, get_supported_currencies
 from services.llm_service import (
     answer_financial_question, answer_financial_question_from_audio, explain_financial_result,
@@ -113,8 +116,16 @@ def render_login() -> User | None:
 
 
 def require_login() -> User:
-    if st.session_state.current_user is not None:
-        return st.session_state.current_user
+    current = st.session_state.current_user
+    if current is not None:
+        # Re-check the account on every run so an admin's changes take effect
+        # immediately: a deleted user is logged out, a changed role applies now.
+        fresh = get_user(current.username)
+        if fresh is not None:
+            st.session_state.current_user = fresh
+            return fresh
+        st.session_state.current_user = None
+        st.warning("Your account is no longer active. Please log in again.")
     if user_count() == 0:
         render_first_run_setup()
     else:
@@ -136,6 +147,7 @@ NAV_ITEMS = [
     ("Reports & Export", "\U0001f4e5", None),
     ("Usage History", "\U0001f4da", "nav_usage_history"),
     ("Audit Trail", "\U0001f4dc", "nav_audit_trail"),
+    ("User Management", "\U0001f511", "nav_user_management"),
 ]
 
 
@@ -707,9 +719,138 @@ def page_audit_trail():
     st.dataframe(pd.DataFrame(rows))
 
 
+ROLE_DESCRIPTIONS = {
+    "admin": "Full access, including Usage History, Audit Trail and User Management.",
+    "accountant": "Full analysis access (upload, AI assistant, exports); no logs or user management.",
+    "viewer": "Read-only: Dashboard and Financial Analysis only.",
+}
+
+
+def _audit_user_change(actor: User, description: str) -> None:
+    """Record an account change in the audit trail. Never pass a password."""
+    log_audit(user_action=f"{description} (by {actor.username})", analysis_type="user_management")
+
+
+def page_user_management(user: User):
+    """Admin-only. There is intentionally no public sign-up: every account
+    is created here, by an administrator."""
+    st.title(f"\U0001f511 {t('nav_user_management', st.session_state.language)}")
+    st.caption("Only administrators can see this page. Accounts are created here -- there is no public sign-up.")
+    # A message saved just before a rerun, so the table below shows fresh data AND the user sees confirmation.
+    flash = st.session_state.pop("user_mgmt_flash", None)
+    if flash:
+        st.success(flash)
+
+    # ---- Create ---------------------------------------------------------
+    st.subheader("Create a new user")
+    with st.form("create_user_form", clear_on_submit=True):
+        new_username = st.text_input("Username")
+        new_password = st.text_input("Temporary password", type="password")
+        confirm_password = st.text_input("Confirm password", type="password")
+        new_role = st.selectbox("Role", list(ROLES), index=ROLES.index("viewer"))
+        create_clicked = st.form_submit_button("Create user")
+    st.caption("  \n".join(f"**{r}** -- {d}" for r, d in ROLE_DESCRIPTIONS.items()))
+    if create_clicked:
+        username = new_username.strip()
+        if not username:
+            st.error("Username is required.")
+        elif new_password != confirm_password:
+            st.error("Passwords do not match.")
+        elif (problem := validate_new_password(new_password)) is not None:
+            st.error(problem)
+        else:
+            try:
+                create_user(username, new_password, role=new_role)
+            except ValueError as exc:
+                st.error(str(exc))
+            else:
+                _audit_user_change(user, f"Created user '{username}' with role '{new_role}'")
+                st.success(f"User '{username}' created as {new_role}. Share the temporary password with them privately.")
+
+    # ---- List -----------------------------------------------------------
+    st.subheader("Existing users")
+    users = list_users()
+    st.dataframe(pd.DataFrame(users), hide_index=True)
+
+    # ---- Manage others --------------------------------------------------
+    st.subheader("Manage a user")
+    others = [u["username"] for u in users if u["username"] != user.username]
+    if not others:
+        st.info("There are no other accounts yet. Create one above.")
+    else:
+        target = st.selectbox("Select user", others)
+        target_user = get_user(target)
+        if target_user is None:
+            st.warning("That user no longer exists.")
+        else:
+            with st.form("change_role_form"):
+                role_choice = st.selectbox(
+                    "New role", list(ROLES), index=ROLES.index(target_user.role), key="change_role_choice",
+                )
+                role_clicked = st.form_submit_button("Update role")
+            if role_clicked:
+                try:
+                    set_role(target, role_choice)
+                except ValueError as exc:
+                    st.error(str(exc))
+                else:
+                    _audit_user_change(user, f"Changed role of '{target}' to '{role_choice}'")
+                    st.session_state.user_mgmt_flash = f"'{target}' is now {role_choice}."
+                    st.rerun()
+
+            with st.form("reset_password_form", clear_on_submit=True):
+                reset_password = st.text_input("New temporary password", type="password", key="reset_pw")
+                reset_confirm = st.text_input("Confirm new password", type="password", key="reset_pw_confirm")
+                reset_clicked = st.form_submit_button("Reset password")
+            if reset_clicked:
+                if reset_password != reset_confirm:
+                    st.error("Passwords do not match.")
+                elif (problem := validate_new_password(reset_password)) is not None:
+                    st.error(problem)
+                else:
+                    update_password(target, reset_password)
+                    _audit_user_change(user, f"Reset password of '{target}'")
+                    st.success(f"Password for '{target}' reset.")
+
+            with st.form("delete_user_form"):
+                confirm_delete = st.checkbox(f"Yes, permanently remove '{target}'", key="confirm_delete_user")
+                delete_clicked = st.form_submit_button("Remove user")
+            if delete_clicked:
+                if not confirm_delete:
+                    st.error("Tick the confirmation box first.")
+                else:
+                    try:
+                        delete_user(target)
+                    except ValueError as exc:
+                        st.error(str(exc))
+                    else:
+                        _audit_user_change(user, f"Removed user '{target}'")
+                        st.session_state.user_mgmt_flash = f"User '{target}' removed."
+                        st.rerun()
+
+    # ---- Own password ---------------------------------------------------
+    st.subheader("Change my password")
+    with st.form("change_own_password_form", clear_on_submit=True):
+        current_pw = st.text_input("Current password", type="password", key="own_pw_current")
+        own_new_pw = st.text_input("New password", type="password", key="own_pw_new")
+        own_confirm_pw = st.text_input("Confirm new password", type="password", key="own_pw_confirm")
+        own_clicked = st.form_submit_button("Change my password")
+    if own_clicked:
+        if verify_user(user.username, current_pw) is None:
+            st.error("Current password is incorrect.")
+        elif own_new_pw != own_confirm_pw:
+            st.error("New passwords do not match.")
+        elif (problem := validate_new_password(own_new_pw)) is not None:
+            st.error(problem)
+        else:
+            update_password(user.username, own_new_pw)
+            _audit_user_change(user, "Changed own password")
+            st.success("Your password has been changed.")
+
+
 # --------------------------------------------------------------------------- Router
-# "Home" is handled separately in main() since it's the only page needing
-# `user` -- every other page reads what it needs from st.session_state.
+# "Home" and "User Management" are handled separately in main() since they
+# need `user` -- every other page reads what it needs from st.session_state.
 PAGES = {
     "Dashboard": page_dashboard,
     "Upload Data": page_upload,
@@ -734,6 +875,8 @@ def main():
         return
     if page == "Home":
         page_home(user)
+    elif page == "User Management":
+        page_user_management(user)
     else:
         PAGES[page]()
 

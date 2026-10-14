@@ -15,7 +15,7 @@ control-flow bugs before a networked environment is available -- but it has
 **not** run against real `streamlit`, so still treat it as a strong draft to
 verify, not a guaranteed-working final file.
 
-### ✅ Implemented and tested (67/67 tests passing)
+### ✅ Implemented and tested (105/105 tests passing)
 
 - [x] Project structure (Section 4)
 - [x] SQLite schema + seed/reset script that survives ephemeral deploys (0A.1)
@@ -72,6 +72,18 @@ verify, not a guaranteed-working final file.
       (Streamlit Community Cloud gives no shell access, so `scripts/create_user.py`
       only works for local/self-hosted use -- same constraint and same fix
       already verified on the sibling investment-dashboard project).
+- [x] **Admin-only User Management page** -- `app.py` (`page_user_management`)
+      on top of `services/auth.py`. There is deliberately no public sign-up:
+      once the first admin exists, every other account is created by an admin
+      from the sidebar's "User Management" page (username, temporary password,
+      role). Admins can also change a user's role, reset a password, remove a
+      user, and change their own password. Rules enforced in `services/auth.py`
+      (not just the UI): usernames are unique ignoring case, new passwords must
+      be at least 8 characters, and the last remaining administrator can never
+      be deleted or demoted. Every change is written to the Audit Trail (never
+      the password). The signed-in account is re-checked from the database on
+      every page run, so a removed user is logged out and a changed role takes
+      effect immediately. The account list never exposes password hashes.
 - [x] **Multi-language UI** (Section 15) -- `locales/translations.py`,
       English/Shona/Ndebele, wired into navigation, headers, and key labels
       in `app.py`; full-sentence AI explanations are translated by the LLM
@@ -151,9 +163,11 @@ python3 -m unittest discover -s tests -v
    zero extra deps) for `agents.orchestrator.build_graph()` once `langgraph`
    is installed, if you specifically need LangGraph's graph features
    (branching, checkpointing, visualisation) for the write-up.
-6. Provision real staff accounts with `python3 scripts/create_user.py
-   --username <name> --role <admin|accountant|viewer>` for local/self-hosted
-   use, or use the in-app first-run form on a fresh deployment.
+6. Provision accounts: on a fresh deployment, create the first admin via the
+   in-app first-run form, then log in and add everyone else from the
+   **User Management** page (admin only). For local/self-hosted use,
+   `python3 scripts/create_user.py --username <name> --role <admin|accountant|viewer>`
+   still works.
 7. Follow Section 41's 21-step demo script as your integration test -- Demo
    Mode (sidebar toggle) is built to support exactly this.
 
@@ -163,7 +177,10 @@ python3 -m unittest discover -s tests -v
   handles this, but say so explicitly in the presentation rather than let it
   surprise you live (Section 0A.1). The same applies to `users` accounts:
   they'll need re-provisioning after a redeploy unless you move to a hosted
-  database.
+  database. If the database is wiped, the app shows the first-run setup form
+  again and whoever opens the link first becomes the admin -- so after any
+  redeploy or reboot, open the app yourself and recreate the admin before
+  sharing the link.
 - Liquidity ratios and receivables/payables are computed as proxies from
   transaction categories, since a transaction feed alone doesn't carry a
   formal balance sheet or AR/AP subledger -- documented inline in
