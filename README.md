@@ -15,7 +15,7 @@ control-flow bugs before a networked environment is available -- but it has
 **not** run against real `streamlit`, so still treat it as a strong draft to
 verify, not a guaranteed-working final file.
 
-### ✅ Implemented and tested (105/105 tests passing)
+### ✅ Implemented and tested (123/123 tests passing)
 
 - [x] Project structure (Section 4)
 - [x] SQLite schema + seed/reset script that survives ephemeral deploys (0A.1)
@@ -84,6 +84,23 @@ verify, not a guaranteed-working final file.
       the password). The signed-in account is re-checked from the database on
       every page run, so a removed user is logged out and a changed role takes
       effect immediately. The account list never exposes password hashes.
+- [x] **Usability and design pass** -- `ui/navigation.py`, `ui/components.py`,
+      `.streamlit/config.toml`, `app.py`. The page list (sections, icons,
+      translation keys, Home-card descriptions) now lives in one place,
+      `ui/navigation.py`, and the sidebar is grouped into Overview / Data /
+      Analysis / AI & Reports / Administration (sections a role can't open are
+      hidden entirely) with the settings (language, currency, demo mode) below
+      the navigation. The Home page has a hero banner, a three-step "Get
+      started" row (step 1 ticks green once data is loaded), a live snapshot of
+      the headline numbers when data is loaded (revenue, net profit, cash,
+      health score, transactions needing review) and a card for every page the
+      user can open. Pages opened before any data is loaded now offer "Load demo
+      dataset" / "Upload Data" buttons instead of a dead-end message. The AI
+      assistant icon changed from the robot emoji (which renders as a tiny glyph
+      on some Windows setups) to a sparkle. The Streamlit theme is pinned to a
+      light navy/cream palette, since several components use fixed light colours.
+      Tests: `tests/test_navigation.py` (registry vs router vs permissions) and
+      new cases in `tests/test_ui_components.py`.
 - [x] **Multi-language UI** (Section 15) -- `locales/translations.py`,
       English/Shona/Ndebele, wired into navigation, headers, and key labels
       in `app.py`; full-sentence AI explanations are translated by the LLM
@@ -199,3 +216,9 @@ python3 -m unittest discover -s tests -v
   (`app.py`/`services/auth.py`), not at the database layer -- fine for a
   single-deployment course project, but worth naming as a limitation if
   asked about production hardening.
+- The grouped sidebar navigation is styled with CSS that targets Streamlit's
+  internal `data-testid` attributes (`ui/components.py`, `APP_THEME_CSS`). The
+  layout and logic are tested against a Streamlit stub, but the look has only
+  been checked as rendered HTML, not in a live Streamlit session -- if a future
+  Streamlit release renames those attributes, the nav buttons fall back to
+  Streamlit's default (centred, bordered) button style but keep working.

@@ -1,0 +1,10 @@
+# Light theme in NYASHA AI's navy / cream / gold palette. base = "light" is
+# deliberate: several components (demo banner, gauge track, cards) use fixed
+# light colours, so the app must not flip to a dark theme on dark-mode browsers.
+[theme]
+base = "light"
+primaryColor = "#1b4079"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f6f3e8"
+textColor = "#0b1f3a"
+font = "sans serif"

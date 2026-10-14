@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local database (contains user accounts and uploaded data) and secrets
+database/nyasha.db
+.env
+.streamlit/secrets.toml
