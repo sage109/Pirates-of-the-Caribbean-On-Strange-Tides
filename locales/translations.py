@@ -41,6 +41,7 @@ _STRINGS: dict[str, dict[str, str]] = {
     "nav_ai_assistant": {"en": "AI Financial Assistant", "sn": "Mubatsiri weAI Wemari", "nd": "Umsizi we-AI Wezezimali"},
     "nav_usage_history": {"en": "Usage History", "sn": "Nhoroondo Yekushandiswa", "nd": "Umlando Wokusetshenziswa"},
     "nav_audit_trail": {"en": "Audit Trail", "sn": "Nhoroondo Yeongororo", "nd": "Umzila Wokuhlolwa"},
+    "nav_user_management": {"en": "User Management", "sn": "Kutonga Vashandisi", "nd": "Ukuphatha Abasebenzisi"},
     "language_label": {"en": "Language", "sn": "Mutauro", "nd": "Ulimi"},
     "reporting_currency_label": {"en": "Reporting Currency", "sn": "Mari Inoshandiswa Pakupa Mhinduro", "nd": "Imali Yokubika"},
     "revenue": {"en": "Revenue", "sn": "Mari Inopinda", "nd": "Imali Engenayo"},

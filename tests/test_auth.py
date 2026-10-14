@@ -84,6 +84,108 @@ class TestAuth(unittest.TestCase):
         create_user("first-admin", "password", role="admin")
         self.assertEqual(user_count(), 1)
 
+    # ------------------------------------------------------------------
+    # User management (admin-only page) -- account helpers
+    # ------------------------------------------------------------------
+    def test_duplicate_username_rejected(self):
+        from services.auth import create_user, user_count
+        create_user("jane", "password-one")
+        with self.assertRaises(ValueError):
+            create_user("jane", "password-two")
+        self.assertEqual(user_count(), 1)
+
+    def test_duplicate_username_rejected_ignoring_case(self):
+        from services.auth import create_user
+        create_user("Jane", "password-one")
+        with self.assertRaises(ValueError):
+            create_user("jane", "password-two")
+
+    def test_get_user_returns_user_or_none(self):
+        from services.auth import create_user, get_user
+        create_user("jane", "password-one", role="accountant")
+        user = get_user("jane")
+        self.assertEqual((user.username, user.role), ("jane", "accountant"))
+        self.assertIsNone(get_user("ghost"))
+
+    def test_list_users_never_exposes_credentials(self):
+        from services.auth import create_user, list_users
+        create_user("admin1", "password-one", role="admin")
+        create_user("jane", "password-two", role="viewer")
+        rows = list_users()
+        self.assertEqual({r["username"] for r in rows}, {"admin1", "jane"})
+        for row in rows:
+            self.assertEqual(set(row), {"username", "role", "created_at"})
+
+    def test_set_role_changes_role(self):
+        from services.auth import create_user, get_user, set_role
+        create_user("admin1", "password-one", role="admin")
+        create_user("jane", "password-two", role="viewer")
+        set_role("jane", "accountant")
+        self.assertEqual(get_user("jane").role, "accountant")
+
+    def test_set_role_rejects_bad_role_and_missing_user(self):
+        from services.auth import create_user, set_role
+        create_user("jane", "password-one", role="admin")
+        with self.assertRaises(ValueError):
+            set_role("jane", "superuser")
+        with self.assertRaises(ValueError):
+            set_role("ghost", "viewer")
+
+    def test_cannot_demote_last_admin(self):
+        from services.auth import create_user, get_user, set_role
+        create_user("only-admin", "password-one", role="admin")
+        with self.assertRaises(ValueError):
+            set_role("only-admin", "viewer")
+        self.assertEqual(get_user("only-admin").role, "admin")
+
+    def test_can_demote_an_admin_when_another_admin_exists(self):
+        from services.auth import admin_count, create_user, get_user, set_role
+        create_user("admin1", "password-one", role="admin")
+        create_user("admin2", "password-two", role="admin")
+        set_role("admin2", "viewer")
+        self.assertEqual(get_user("admin2").role, "viewer")
+        self.assertEqual(admin_count(), 1)
+
+    def test_delete_user_removes_account_and_blocks_login(self):
+        from services.auth import create_user, delete_user, get_user, verify_user
+        create_user("admin1", "password-one", role="admin")
+        create_user("jane", "password-two")
+        delete_user("jane")
+        self.assertIsNone(get_user("jane"))
+        self.assertIsNone(verify_user("jane", "password-two"))
+
+    def test_cannot_delete_last_admin(self):
+        from services.auth import create_user, delete_user, get_user
+        create_user("only-admin", "password-one", role="admin")
+        create_user("jane", "password-two")
+        with self.assertRaises(ValueError):
+            delete_user("only-admin")
+        self.assertIsNotNone(get_user("only-admin"))
+
+    def test_can_delete_an_admin_when_another_admin_exists(self):
+        from services.auth import create_user, delete_user, get_user
+        create_user("admin1", "password-one", role="admin")
+        create_user("admin2", "password-two", role="admin")
+        delete_user("admin2")
+        self.assertIsNone(get_user("admin2"))
+
+    def test_delete_missing_user_raises(self):
+        from services.auth import delete_user
+        with self.assertRaises(ValueError):
+            delete_user("ghost")
+
+    def test_validate_new_password(self):
+        from services.auth import MIN_PASSWORD_LENGTH, validate_new_password
+        self.assertIsNotNone(validate_new_password("short"))
+        self.assertIsNotNone(validate_new_password(" " + "x" * MIN_PASSWORD_LENGTH))
+        self.assertIsNone(validate_new_password("x" * MIN_PASSWORD_LENGTH))
+
+    def test_user_management_page_is_admin_only(self):
+        from services.auth import User, can_access_page
+        self.assertTrue(can_access_page(User("a", "admin"), "User Management"))
+        self.assertFalse(can_access_page(User("c", "accountant"), "User Management"))
+        self.assertFalse(can_access_page(User("v", "viewer"), "User Management"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,9 +4,9 @@ scripts/create_user.py
 
 Local/self-hosted account provisioning. On Streamlit Community Cloud this
 script cannot reach the deployed app's database (no shell access there) --
-use the in-app first-run setup form instead (shown automatically while
-`user_count() == 0`), exactly as documented for the sibling investment
-dashboard project.
+use the in-app first-run setup form for the first admin (shown automatically
+while `user_count() == 0`), then add everyone else from the admin-only
+"User Management" page inside the app.
 
 Usage:
     python3 scripts/create_user.py --username jane --role accountant
