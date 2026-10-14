@@ -53,7 +53,11 @@ from services.exchange_rates import get_live_rate, get_supported_currencies
 from services.llm_service import (
     answer_financial_question, answer_financial_question_from_audio, explain_financial_result,
 )
-from ui.components import demo_mode_banner_html, health_score_gauge_svg, nyasha_watermark_html
+from ui.components import (
+    app_theme_css, demo_mode_banner_html, feature_card_html, health_score_gauge_svg, hero_html,
+    nav_section_label_html, nyasha_watermark_html, step_card_html,
+)
+from ui.navigation import HOME_LABEL, find_item, home_cards, visible_sections
 
 st.set_page_config(page_title="NYASHA AI", page_icon="\U0001f4a1", layout="wide")
 
@@ -70,6 +74,7 @@ for key, default in {
     "transactions_df": None,
     "demo_mode": False,
     "current_user": None,
+    "current_page": HOME_LABEL,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
@@ -134,29 +139,38 @@ def require_login() -> User:
 
 
 # --------------------------------------------------------------------------- Sidebar / navigation
-NAV_ITEMS = [
-    ("Home", "\U0001f3e0", "nav_home"),
-    ("Dashboard", "\U0001f4ca", "nav_dashboard"),
-    ("Upload Data", "\U0001f4c1", "nav_upload"),
-    ("Financial Analysis", "\U0001f4b0", "nav_financial_analysis"),
-    ("Anomaly Detection", "\U0001f50d", "nav_anomalies"),
-    ("Cash Flow Forecast", "\U0001f4b5", "nav_cashflow"),
-    ("Customer Analysis", "\U0001f465", "nav_customers"),
-    ("VAT Analysis", "\U0001f9fe", "nav_vat"),
-    ("AI Financial Assistant", "\U0001f916", "nav_ai_assistant"),
-    ("Reports & Export", "\U0001f4e5", None),
-    ("Usage History", "\U0001f4da", "nav_usage_history"),
-    ("Audit Trail", "\U0001f4dc", "nav_audit_trail"),
-    ("User Management", "\U0001f511", "nav_user_management"),
-]
+# The page list (sections, icons, translation keys) lives in ui/navigation.py.
+def go_to(label: str) -> None:
+    """Switch the active page and redraw. Used by the sidebar buttons, the Home
+    page cards and the empty-state shortcuts."""
+    st.session_state.current_page = label
+    st.rerun()
 
 
 def sidebar(user: User) -> str:
+    current = st.session_state.current_page
+    if current != HOME_LABEL and not can_access_page(user, current):
+        # e.g. an admin changed this user's role since their last click
+        current = st.session_state.current_page = HOME_LABEL
+
     with st.sidebar:
         st.markdown("## \U0001f4a1 NYASHA AI")
         st.caption(t("app_tagline", st.session_state.language))
         st.caption(f"Logged in as **{user.username}** ({user.role})")
+        # Layout order is fixed here (navigation on top, settings below); the
+        # code below fills the settings box FIRST so that a language change is
+        # already applied when the navigation labels are drawn.
+        nav_box = st.container()
+        st.divider()
+        settings_box = st.container()
+        st.divider()
+        if st.button("Log out"):
+            st.session_state.current_user = None
+            st.session_state.current_page = HOME_LABEL
+            st.rerun()
 
+    with settings_box:
+        st.markdown(nav_section_label_html("Settings"), unsafe_allow_html=True)
         st.session_state.language = st.selectbox(
             f"\U0001f310 {t('language_label', st.session_state.language)}", available_languages(),
             index=available_languages().index(st.session_state.language),
@@ -171,22 +185,19 @@ def sidebar(user: User) -> str:
         if st.session_state.demo_mode and st.session_state.transactions_df is None:
             st.session_state.transactions_df = pd.read_csv("data/sample_transactions.csv")
 
-        st.divider()
-        visible_items = [
-            (label, emoji, (t(key, st.session_state.language) if key else label))
-            for label, emoji, key in NAV_ITEMS if can_access_page(user, label)
-        ]
-        display_to_label = {f"{emoji} {display}": label for label, emoji, display in visible_items}
-        choice = st.radio(
-            "Navigate", list(display_to_label.keys()), label_visibility="collapsed",
-        )
+    with nav_box:
+        lang = st.session_state.language
+        for title, items in visible_sections(lambda label: can_access_page(user, label)):
+            st.markdown(nav_section_label_html(title), unsafe_allow_html=True)
+            for item in items:
+                display = t(item.translation_key, lang) if item.translation_key else item.label
+                if st.button(
+                    f"{item.emoji} {display}", key=f"nav_{item.label}",
+                    type="primary" if item.label == current else "secondary",
+                ):
+                    go_to(item.label)
 
-        st.divider()
-        if st.button("Log out"):
-            st.session_state.current_user = None
-            st.rerun()
-
-        return display_to_label[choice]
+    return current
 
 
 # --------------------------------------------------------------------------- Data loading helpers
@@ -202,10 +213,37 @@ def load_active_dataframe() -> pd.DataFrame | None:
     return norm.df
 
 
+def load_demo_dataset() -> pd.DataFrame:
+    """Load the bundled Moyo Retail & Services demo transactions into the session."""
+    df = pd.read_csv("data/sample_transactions.csv")
+    st.session_state.transactions_df = df
+    log_usage(user_action="Uploaded transactions", dataset=f"{DEMO_BUSINESS_NAME} (demo)",
+              currency=st.session_state.reporting_currency, language=st.session_state.language)
+    return df
+
+
+def render_no_data_actions() -> None:
+    """Empty-state shortcuts: a user who lands on an analysis page before
+    loading data can fix that in one click instead of hunting in the sidebar."""
+    user = st.session_state.current_user
+    lang = st.session_state.language
+    col_demo, col_upload, _ = st.columns([1, 1, 2])
+    with col_demo:
+        if st.button(f"\U0001f3ac {t('load_demo_dataset', lang)}", key="empty_state_demo"):
+            load_demo_dataset()
+            st.rerun()
+    with col_upload:
+        upload_item = find_item("Upload Data")
+        if user is not None and can_access_page(user, "Upload Data"):
+            if st.button(f"{upload_item.emoji} {t('nav_upload', lang)}", key="empty_state_upload"):
+                go_to("Upload Data")
+
+
 def require_data() -> pd.DataFrame | None:
     df = load_active_dataframe()
     if df is None or df.empty:
         st.info(t("no_data_loaded", st.session_state.language))
+        render_no_data_actions()
         return None
     return df
 
@@ -227,15 +265,108 @@ def render_fx_badges() -> None:
 
 
 # --------------------------------------------------------------------------- Pages
+def render_home_snapshot() -> None:
+    """Headline numbers for whatever data is currently loaded. A problem with
+    an odd upload must never take the landing page down, so failures are
+    reported in place instead of raised."""
+    lang = st.session_state.language
+    try:
+        df = load_active_dataframe()
+        if df is None or df.empty:
+            st.warning("Your data is loaded but has no valid rows. Open Upload Data to see which rows failed validation.")
+            return
+        prof = profitability_summary(df)
+        liq = liquidity_summary(df)
+        health = calculate_financial_health(df)
+        flagged = sum(1 for f in detect_anomalies(df) if f.risk_level in ("HIGH", "MEDIUM"))
+    except Exception as exc:  # noqa: BLE001 -- see docstring
+        st.warning(f"Couldn't build the snapshot for this data: {exc}")
+        return
+
+    cur = st.session_state.reporting_currency
+    st.markdown("### Your snapshot")
+    st.caption(f"{len(st.session_state.transactions_df):,} transactions loaded, shown in {cur}.")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1, st.container(border=True):
+        st.metric(t("revenue", lang), f"{cur} {prof.revenue:,.0f}")
+    with c2, st.container(border=True):
+        st.metric(t("net_profit", lang), f"{cur} {prof.net_profit:,.0f}",
+                  f"{prof.net_margin_pct}%" if prof.net_margin_pct is not None else None)
+    with c3, st.container(border=True):
+        st.metric(t("cash_balance", lang), f"{cur} {liq.net_cash_flow:,.0f}")
+    with c4, st.container(border=True):
+        st.metric(t("financial_health", lang), f"{health.total_score:.0f}/100")
+        st.caption(health.rating)
+    with c5, st.container(border=True):
+        st.metric("Needs review", f"{flagged}")
+        st.caption("high / medium risk transactions")
+
+
 def page_home(user: User):
-    st.title("\U0001f4a1 NYASHA AI")
-    st.subheader(t("app_tagline", st.session_state.language))
-    st.write(
-        "NYASHA AI turns raw SME transaction data into financial analysis, risk detection, "
-        "cash-flow forecasts, VAT summaries, and AI-explained recommendations -- with every "
-        "figure computed deterministically in Python and never invented by the AI."
+    lang = st.session_state.language
+    can = lambda label: can_access_page(user, label)  # noqa: E731
+    data_loaded = st.session_state.transactions_df is not None
+
+    st.markdown(
+        hero_html(
+            "NYASHA AI", t("app_tagline", lang),
+            "NYASHA AI turns raw SME transaction data into financial analysis, risk detection, "
+            "cash-flow forecasts, VAT summaries, and AI-explained recommendations -- with every "
+            "figure computed deterministically in Python and never invented by the AI.",
+        ),
+        unsafe_allow_html=True,
     )
-    st.markdown(f"Start with **{t('nav_upload', st.session_state.language)}** (or turn on Demo Mode in the sidebar), then explore the pages in the sidebar.")
+
+    if data_loaded:
+        render_home_snapshot()
+
+    st.markdown("### Get started")
+    step1, step2, step3 = st.columns(3)
+    with step1:
+        st.markdown(step_card_html(
+            1, "Load your data",
+            "Your transactions are loaded and ready." if data_loaded
+            else "Load the demo dataset to explore right away, or upload your own CSV or Excel file.",
+            done=data_loaded,
+        ), unsafe_allow_html=True)
+        if not data_loaded:
+            if st.button(f"\U0001f3ac {t('load_demo_dataset', lang)}", key="home_step_demo"):
+                load_demo_dataset()
+                st.rerun()
+            if can("Upload Data") and st.button(f"\U0001f4c1 {t('upload_your_own', lang)}", key="home_step_upload"):
+                go_to("Upload Data")
+    with step2:
+        st.markdown(step_card_html(
+            2, "Explore the analysis",
+            "Start with the Dashboard, then open the pages under Analysis for the detail.",
+        ), unsafe_allow_html=True)
+        if st.button(f"\U0001f4ca {t('nav_dashboard', lang)}", key="home_step_dashboard"):
+            go_to("Dashboard")
+    with step3:
+        ask_label = "AI Financial Assistant" if can("AI Financial Assistant") else "Reports & Export"
+        ask_item = find_item(ask_label)
+        st.markdown(step_card_html(
+            3, "Ask and export",
+            "Ask questions in plain language, or download a report to share." if can("AI Financial Assistant")
+            else "Download CSV exports and a printable report to share.",
+        ), unsafe_allow_html=True)
+        ask_text = t(ask_item.translation_key, lang) if ask_item.translation_key else ask_item.label
+        if st.button(f"{ask_item.emoji} {ask_text}", key="home_step_ask"):
+            go_to(ask_label)
+
+    st.markdown("### What you can do here")
+    cards = home_cards(can)
+    per_row = 3  # 9 cards for an admin/accountant -> three even rows
+    for row_start in range(0, len(cards), per_row):
+        row = cards[row_start:row_start + per_row]
+        cols = st.columns(per_row)
+        for col, item in zip(cols, row):
+            display = t(item.translation_key, lang) if item.translation_key else item.label
+            with col:
+                st.markdown(feature_card_html(item.emoji, display, item.description), unsafe_allow_html=True)
+                if st.button("Open", key=f"home_open_{item.label}"):
+                    go_to(item.label)
+
     if user.role == "viewer":
         st.caption("You're logged in as a viewer: Dashboard and Financial Analysis only. Ask an admin for accountant access to upload data or use the AI assistant.")
 
@@ -248,10 +379,8 @@ def page_upload():
         st.markdown(f"### {t('load_demo_dataset', st.session_state.language)}")
         st.caption(f"{DEMO_BUSINESS_NAME} -- 12 months, 7 currencies, deliberate anomalies for demonstration.")
         if st.button(t("load_demo_dataset", st.session_state.language)):
-            st.session_state.transactions_df = pd.read_csv("data/sample_transactions.csv")
-            log_usage(user_action="Uploaded transactions", dataset=f"{DEMO_BUSINESS_NAME} (demo)",
-                      currency=st.session_state.reporting_currency, language=st.session_state.language)
-            st.success(f"Loaded {len(st.session_state.transactions_df)} demo transactions.")
+            demo_df = load_demo_dataset()
+            st.success(f"Loaded {len(demo_df)} demo transactions.")
 
     with col2:
         st.markdown(f"### {t('upload_your_own', st.session_state.language)}")
@@ -609,7 +738,7 @@ def page_vat():
 
 
 def page_ai_assistant():
-    st.title(f"\U0001f916 {t('nav_ai_assistant', st.session_state.language)}")
+    st.title(f"✨ {t('nav_ai_assistant', st.session_state.language)}")
     df = require_data()
     if df is None:
         return
@@ -868,6 +997,7 @@ PAGES = {
 
 def main():
     user = require_login()
+    st.markdown(app_theme_css(), unsafe_allow_html=True)
     st.markdown(nyasha_watermark_html(), unsafe_allow_html=True)
     page = sidebar(user)
     if not can_access_page(user, page):

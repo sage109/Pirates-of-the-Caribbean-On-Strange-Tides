@@ -101,3 +101,99 @@ def demo_mode_banner_html() -> str:
         "with guided commentary. Turn this off in the sidebar to explore freely."
         "</div>"
     )
+
+
+# --------------------------------------------------------------------------- Theme + layout pieces
+# Palette (matches the gauge/banner colours above and .streamlit/config.toml):
+#   navy #0b1f3a, blue #1b4079, gold #c9a227 / #f0d98a, cream border #e3ddc6.
+APP_THEME_CSS = """
+<style>
+/* ---- Sidebar navigation: full-width, left-aligned, borderless buttons ---- */
+[data-testid="stSidebar"] .stButton > button,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    border: none;
+    padding: 0.32rem 0.75rem;
+    font-weight: 500;
+}
+[data-testid="stSidebar"] .stButton > button > div,
+[data-testid="stSidebar"] .stButton > button p { width: 100%; text-align: left; }
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] { background: transparent; }
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover { background: rgba(11, 31, 58, 0.08); }
+[data-testid="stSidebar"] .stButton { margin-bottom: -0.35rem; }
+
+.nyasha-nav-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #6b7280; margin: 0.9rem 0 0.35rem 0.25rem;
+}
+
+/* ---- Home page ---- */
+.nyasha-hero {
+    background: linear-gradient(135deg, #0b1f3a 0%, #1b4079 100%);
+    border-radius: 16px; padding: 1.5rem 1.8rem; margin-bottom: 1.2rem;
+}
+.nyasha-hero .brand { color: #ffffff; font-size: 2.1rem; font-weight: 800; margin: 0; line-height: 1.2; }
+.nyasha-hero .tagline { color: #f0d98a; font-weight: 600; font-size: 1.1rem; margin: 0.2rem 0 0.7rem 0; }
+.nyasha-hero .body { color: #dbe4f3; margin: 0; line-height: 1.55; }
+
+.nyasha-card {
+    background: #ffffff; border: 1px solid #e3ddc6; border-radius: 12px;
+    padding: 0.9rem 1rem; min-height: 6.6rem; margin-bottom: 0.45rem;
+}
+.nyasha-card .icon { font-size: 1.35rem; line-height: 1.2; }
+.nyasha-card .title { font-weight: 700; color: #0b1f3a; margin: 0.15rem 0 0.2rem 0; }
+.nyasha-card .desc { color: #4b5563; font-size: 0.88rem; line-height: 1.4; margin: 0; }
+.nyasha-step .num {
+    display: inline-block; width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center;
+    border-radius: 50%; background: #0b1f3a; color: #ffffff; font-weight: 700; font-size: 0.85rem;
+    margin-right: 0.45rem;
+}
+.nyasha-step.done { border-color: #3f7d3f; background: #f4faf4; }
+.nyasha-step.done .num { background: #3f7d3f; }
+</style>
+"""
+
+
+def app_theme_css() -> str:
+    """Global CSS (sidebar nav, Home page cards). Colours that Streamlit's own
+    theme controls live in .streamlit/config.toml instead."""
+    return APP_THEME_CSS
+
+
+def nav_section_label_html(title: str) -> str:
+    return f'<div class="nyasha-nav-label">{html.escape(title)}</div>'
+
+
+def hero_html(brand: str, tagline: str, body: str) -> str:
+    return (
+        '<div class="nyasha-hero">'
+        f'<p class="brand">\U0001f4a1 {html.escape(brand)}</p>'
+        f'<p class="tagline">{html.escape(tagline)}</p>'
+        f'<p class="body">{html.escape(body)}</p>'
+        "</div>"
+    )
+
+
+def step_card_html(number: int, title: str, text: str, done: bool = False) -> str:
+    """One 'getting started' step. `done` turns it green with a tick."""
+    badge = "✓" if done else str(int(number))
+    cls = "nyasha-card nyasha-step done" if done else "nyasha-card nyasha-step"
+    return (
+        f'<div class="{cls}">'
+        f'<div class="title"><span class="num">{badge}</span>{html.escape(title)}</div>'
+        f'<p class="desc">{html.escape(text)}</p>'
+        "</div>"
+    )
+
+
+def feature_card_html(emoji: str, title: str, description: str) -> str:
+    return (
+        '<div class="nyasha-card">'
+        f'<div class="icon">{html.escape(emoji)}</div>'
+        f'<div class="title">{html.escape(title)}</div>'
+        f'<p class="desc">{html.escape(description)}</p>'
+        "</div>"
+    )
