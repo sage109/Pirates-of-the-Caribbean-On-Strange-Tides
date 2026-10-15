@@ -15,7 +15,7 @@ control-flow bugs before a networked environment is available -- but it has
 **not** run against real `streamlit`, so still treat it as a strong draft to
 verify, not a guaranteed-working final file.
 
-### ✅ Implemented and tested (123/123 tests passing)
+### ✅ Implemented and tested (151/151 tests passing)
 
 - [x] Project structure (Section 4)
 - [x] SQLite schema + seed/reset script that survives ephemeral deploys (0A.1)
@@ -101,6 +101,20 @@ verify, not a guaranteed-working final file.
       light navy/cream palette, since several components use fixed light colours.
       Tests: `tests/test_navigation.py` (registry vs router vs permissions) and
       new cases in `tests/test_ui_components.py`.
+- [x] **Cash Flow Forecast chart + plain-language insight** -- `ui/charts.py`.
+      Replaces Streamlit's default line chart (which left most of the plot
+      empty and said nothing about what the line means) with a dependency-free
+      SVG chart: the value axis starts at zero so the cushion is visible, the
+      time axis stops at the last forecast day, every forecast date has a marker
+      coloured by its cash status with its value labelled (and a hover tooltip),
+      anything below zero is shaded red, and if the straight-line projection
+      reaches zero the day it does so is marked. Above the chart, a sentence
+      built from templates in Python (never by the LLM) says what the forecast
+      means -- e.g. "falls from USD 40,829 today to USD 31,910 in 90 days (-22%),
+      about USD 99 less each day. At that rate it would last more than a year." --
+      in a blue / amber / red box that follows the 90-day cash status. The chart
+      is shown in an iframe (`st.components.v1.html`) so it renders exactly as
+      designed. Tests: `tests/test_charts.py`.
 - [x] **Multi-language UI** (Section 15) -- `locales/translations.py`,
       English/Shona/Ndebele, wired into navigation, headers, and key labels
       in `app.py`; full-sentence AI explanations are translated by the LLM
@@ -222,3 +236,6 @@ python3 -m unittest discover -s tests -v
   been checked as rendered HTML, not in a live Streamlit session -- if a future
   Streamlit release renames those attributes, the nav buttons fall back to
   Streamlit's default (centred, bordered) button style but keep working.
+- The Cash Flow chart lives in a fixed-height iframe, so on a very narrow
+  screen (a phone) there is some blank space under it; it is also a straight-line
+  projection from recent average daily cash flow, not a seasonal forecast.

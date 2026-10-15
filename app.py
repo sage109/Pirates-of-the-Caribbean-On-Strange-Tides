@@ -57,6 +57,7 @@ from ui.components import (
     app_theme_css, demo_mode_banner_html, feature_card_html, health_score_gauge_svg, hero_html,
     nav_section_label_html, nyasha_watermark_html, step_card_html,
 )
+from ui.charts import CHART_FRAME_HEIGHT, ForecastPoint, chart_page_html, forecast_chart_svg, forecast_insight
 from ui.navigation import HOME_LABEL, find_item, home_cards, visible_sections
 
 st.set_page_config(page_title="NYASHA AI", page_icon="\U0001f4a1", layout="wide")
@@ -611,15 +612,17 @@ def page_cashflow():
     starting_balance = forecasts[horizons[0]].starting_balance
 
     st.markdown("### Projected balance")
+    points = [ForecastPoint(0, starting_balance)] + [
+        ForecastPoint(h, forecasts[h].expected_closing_balance, forecasts[h].status) for h in horizons
+    ]
+    insight = forecast_insight(points, cur)
+    {"ok": st.info, "watch": st.warning, "risk": st.error}[insight.level](insight.headline)
+    st.components.v1.html(chart_page_html(forecast_chart_svg(points, cur)), height=CHART_FRAME_HEIGHT)
     st.caption(
-        "Straight-line projection from recent average daily cash flow -- day 0 is today's "
-        "actual balance; each later point is that day's expected closing balance."
+        "Straight-line projection from recent average daily cash flow -- the first point is today's "
+        "actual balance; each later point is that day's expected closing balance. Marker colour is "
+        "the cash status for that date (the same status shown in the cards below)."
     )
-    projection = pd.Series(
-        {0: starting_balance, **{h: forecasts[h].expected_closing_balance for h in horizons}},
-        name=f"Projected balance ({cur})",
-    )
-    st.line_chart(projection)
 
     st.divider()
     st.markdown("### At a glance")
