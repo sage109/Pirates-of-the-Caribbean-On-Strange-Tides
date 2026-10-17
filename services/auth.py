@@ -1,7 +1,7 @@
 """
 services/auth.py
 
-Simple, dependency-free login for NYASHA AI. Reuses the same pattern
+Simple, dependency-free login for Sarudzo AI. Reuses the same pattern
 already used and demo-tested in the sibling investment-dashboard project:
 salted PBKDF2-SHA256 password hashes (stdlib `hashlib`, no plaintext ever
 stored). There is deliberately NO public "sign up" form: this is a
@@ -32,17 +32,34 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import math
 import os
+import re
 import sqlite3
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from database.database import fetch_all, transaction
+from database.database import fetch_all, log_audit, transaction
 
 ROLES = ("admin", "accountant", "viewer")
 MIN_PASSWORD_LENGTH = 8
 PAGES_REQUIRING_ADMIN = {"Usage History", "Audit Trail", "User Management"}
 PAGES_REQUIRING_ACCOUNTANT_OR_ABOVE = {"Upload Data", "AI Financial Assistant"}
+
+# --- Sign-in protection -------------------------------------------------------
+# 5 wrong passwords inside 15 minutes lock that username out for 10 minutes.
+# The lock is keyed by the *typed* username (lower-cased), so guessing at names
+# that don't exist is throttled exactly like guessing at real ones -- the
+# sign-in form can't be used to find out which usernames exist.
+MAX_FAILED_ATTEMPTS = 5
+FAILURE_WINDOW_SECONDS = 15 * 60
+LOCKOUT_SECONDS = 10 * 60
+SETUP_THROTTLE_KEY = "\x00setup"  # can't collide with a username (see validate_username)
+DEFAULT_SESSION_TIMEOUT_MINUTES = 30
+USERNAME_MIN_LENGTH = 3
+USERNAME_MAX_LENGTH = 32
+_USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 USERS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
@@ -51,6 +68,12 @@ CREATE TABLE IF NOT EXISTS users (
     salt            TEXT NOT NULL,
     role            TEXT NOT NULL DEFAULT 'viewer',
     created_at      TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS login_throttle (
+    key             TEXT PRIMARY KEY,
+    failures        INTEGER NOT NULL DEFAULT 0,
+    window_start    REAL NOT NULL DEFAULT 0,
+    locked_until    REAL NOT NULL DEFAULT 0
 );
 """
 
@@ -158,10 +181,19 @@ def delete_user(username: str) -> None:
         conn.execute("DELETE FROM users WHERE username = ?", (username,))
 
 
+# Hash of a throw-away password, checked when the username doesn't exist so a
+# wrong username and a wrong password take about the same time to reject.
+_DUMMY_HASH, _DUMMY_SALT = _hash_password("not-a-real-password", b"\x00" * 16)
+
+
 def verify_user(username: str, password: str) -> User | None:
+    """Checks credentials only (no lockout, no audit log -- see attempt_login
+    for the full sign-in flow). The username match ignores case, consistent
+    with create_user refusing "Jane" when "jane" exists."""
     ensure_users_table()
-    rows = fetch_all("SELECT * FROM users WHERE username = ?", (username.strip(),))
+    rows = fetch_all("SELECT * FROM users WHERE LOWER(username) = LOWER(?)", (username.strip(),))
     if not rows:
+        _hash_password(password, bytes.fromhex(_DUMMY_SALT))  # equalise timing
         return None
     row = rows[0]
     expected_hash, _ = _hash_password(password, bytes.fromhex(row["salt"]))
@@ -196,3 +228,225 @@ def can_access_page(user: User, page_label: str) -> bool:
     if page_label in PAGES_REQUIRING_ACCOUNTANT_OR_ABOVE:
         return user.role == "accountant"
     return True  # Dashboard, Financial Analysis, etc. -- open to all logged-in roles
+
+
+# --------------------------------------------------------------------------- Validation
+def validate_username(username: str) -> str | None:
+    """Returns a problem code ("username_length" / "username_chars") or None.
+    Applied to the first administrator account; codes (not sentences) so the
+    UI can show them in the user's language."""
+    name = username.strip()
+    if not (USERNAME_MIN_LENGTH <= len(name) <= USERNAME_MAX_LENGTH):
+        return "username_length"
+    if not _USERNAME_PATTERN.match(name):
+        return "username_chars"
+    return None
+
+
+def password_problem(password: str) -> str | None:
+    """Same rules as validate_new_password, as a code ("password_short" /
+    "password_spaces") for translation."""
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return "password_short"
+    if password.strip() != password:
+        return "password_spaces"
+    return None
+
+
+def password_strength(password: str) -> int:
+    """0-4 rough strength score for the live meter. Length first, then variety.
+    It guides; it never blocks (blocking is password_problem's job)."""
+    if not password:
+        return 0
+    score = 0
+    if len(password) >= MIN_PASSWORD_LENGTH:
+        score += 1
+    if len(password) >= 12:
+        score += 1
+    kinds = sum(bool(re.search(p, password)) for p in (r"[a-z]", r"[A-Z]", r"\d", r"[^A-Za-z0-9]"))
+    if kinds >= 3:
+        score += 1
+    if kinds == 4 and len(password) >= 10:
+        score += 1
+    return min(score, 4) if len(password) >= MIN_PASSWORD_LENGTH else min(score, 1)
+
+
+# --------------------------------------------------------------------------- Lockout
+def _throttle_key(username: str) -> str:
+    return username.strip().lower()[:64]
+
+
+def next_throttle_state(failures: int, window_start: float, now: float) -> tuple[int, float, float]:
+    """Pure rule for recording one more failed attempt at time `now`.
+    Returns (failures, window_start, locked_until). Failures older than the
+    window are forgotten; reaching MAX_FAILED_ATTEMPTS starts the lockout."""
+    if failures == 0 or now - window_start > FAILURE_WINDOW_SECONDS:
+        failures, window_start = 0, now
+    failures += 1
+    locked_until = now + LOCKOUT_SECONDS if failures >= MAX_FAILED_ATTEMPTS else 0.0
+    return failures, window_start, locked_until
+
+
+def lockout_seconds_remaining(username: str, now: float | None = None) -> int:
+    """Whole seconds left on this username's lockout (0 = not locked)."""
+    ensure_users_table()
+    now = time.time() if now is None else now
+    rows = fetch_all("SELECT locked_until FROM login_throttle WHERE key = ?", (_throttle_key(username),))
+    if not rows:
+        return 0
+    left = rows[0]["locked_until"] - now
+    return math.ceil(left) if left > 0 else 0
+
+
+def _record_failure(key: str, now: float) -> tuple[int, float]:
+    """Persist one failed attempt. Returns (failures_in_window, locked_until)."""
+    rows = fetch_all("SELECT failures, window_start FROM login_throttle WHERE key = ?", (key,))
+    failures, window_start = (rows[0]["failures"], rows[0]["window_start"]) if rows else (0, 0.0)
+    failures, window_start, locked_until = next_throttle_state(failures, window_start, now)
+    with transaction() as conn:
+        conn.execute(
+            "INSERT INTO login_throttle (key, failures, window_start, locked_until) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET failures = excluded.failures, "
+            "window_start = excluded.window_start, locked_until = excluded.locked_until",
+            (key, failures, window_start, locked_until),
+        )
+    return failures, locked_until
+
+
+def _clear_failures(key: str) -> None:
+    with transaction() as conn:
+        conn.execute("DELETE FROM login_throttle WHERE key = ?", (key,))
+
+
+def _audit(action: str) -> None:
+    """Sign-in events go to the same Audit Trail the admin already reviews.
+    Never include the password; the typed username is truncated and stripped
+    of line breaks so it can't forge log lines."""
+    try:
+        log_audit(user_action=action, analysis_type="authentication")
+    except Exception:  # logging must never block (or crash) a sign-in
+        pass
+
+
+def _safe_name(username: str) -> str:
+    return re.sub(r"[\r\n\t]", " ", username.strip())[:40] or "(blank)"
+
+
+@dataclass
+class LoginResult:
+    status: str  # "ok" | "invalid" | "locked" | "missing"
+    user: User | None = None
+    retry_after: int = 0       # seconds, when status == "locked"
+    attempts_left: int | None = None  # when status == "invalid"
+
+
+def attempt_login(username: str, password: str, now: float | None = None) -> LoginResult:
+    """The whole sign-in flow: lockout check, credential check, throttle
+    bookkeeping and audit logging. The result never says *which* of username
+    or password was wrong."""
+    now = time.time() if now is None else now
+    if not username.strip() or not password:
+        return LoginResult("missing")
+    key = _throttle_key(username)
+    left = lockout_seconds_remaining(username, now)
+    if left > 0:
+        _audit(f"Sign-in blocked (locked out): {_safe_name(username)}")
+        return LoginResult("locked", retry_after=left)
+    user = verify_user(username, password)
+    if user is not None:
+        _clear_failures(key)
+        _audit(f"Sign-in: {user.username}")
+        return LoginResult("ok", user=user)
+    failures, locked_until = _record_failure(key, now)
+    if locked_until > now:
+        _audit(f"Locked out after {failures} failed sign-ins: {_safe_name(username)}")
+        return LoginResult("locked", retry_after=int(LOCKOUT_SECONDS))
+    _audit(f"Failed sign-in: {_safe_name(username)}")
+    return LoginResult("invalid", attempts_left=MAX_FAILED_ATTEMPTS - failures)
+
+
+def log_sign_out(user: User) -> None:
+    _audit(f"Sign-out: {user.username}")
+
+
+def log_session_expired(user: User) -> None:
+    _audit(f"Signed out after inactivity: {user.username}")
+
+
+# --------------------------------------------------------------------------- First-run setup key
+def configured_setup_key() -> str | None:
+    """The owner's setup key, from the NYASHA_SETUP_KEY environment variable
+    (on Streamlit Community Cloud: a top-level entry in the app's Secrets).
+    None when unset."""
+    value = os.environ.get("NYASHA_SETUP_KEY", "").strip()
+    return value or None
+
+
+def setup_key_ok(provided: str, expected: str | None = None) -> bool:
+    expected = configured_setup_key() if expected is None else expected
+    if not expected:
+        return True  # no key configured -> open setup (the UI warns about it)
+    return hmac.compare_digest(provided.strip().encode("utf-8"), expected.encode("utf-8"))
+
+
+@dataclass
+class SetupResult:
+    ok: bool
+    error: str | None = None   # a code the UI translates
+    retry_after: int = 0
+
+
+def attempt_setup(username: str, password: str, confirm: str, setup_key: str = "",
+                  now: float | None = None) -> SetupResult:
+    """Creates the first administrator. Refuses when accounts already exist
+    (so a stale or replayed form can't mint a second admin), when the setup
+    key is wrong (throttled like passwords), or when the details are weak."""
+    now = time.time() if now is None else now
+    if user_count() > 0:
+        return SetupResult(False, "setup_closed")
+    if not username.strip() or not password:
+        return SetupResult(False, "missing")
+    if (problem := validate_username(username)) is not None:
+        return SetupResult(False, problem)
+    if (problem := password_problem(password)) is not None:
+        return SetupResult(False, problem)
+    if password != confirm:
+        return SetupResult(False, "mismatch")
+    if configured_setup_key():
+        left = lockout_seconds_remaining(SETUP_THROTTLE_KEY, now)
+        if left > 0:
+            return SetupResult(False, "locked", retry_after=left)
+        if not setup_key_ok(setup_key):
+            _, locked_until = _record_failure(SETUP_THROTTLE_KEY, now)
+            _audit("Failed first-run setup: wrong setup key")
+            if locked_until > now:
+                return SetupResult(False, "locked", retry_after=int(LOCKOUT_SECONDS))
+            return SetupResult(False, "bad_setup_key")
+        _clear_failures(SETUP_THROTTLE_KEY)
+    try:
+        create_user(username, password, role="admin")
+    except ValueError:
+        return SetupResult(False, "setup_closed")
+    _audit(f"First administrator created: {username.strip()}")
+    return SetupResult(True)
+
+
+# --------------------------------------------------------------------------- Idle timeout
+def session_timeout_seconds() -> int:
+    """Idle limit from NYASHA_SESSION_TIMEOUT_MINUTES (default 30; 0 turns it
+    off; junk values fall back to the default)."""
+    raw = os.environ.get("NYASHA_SESSION_TIMEOUT_MINUTES", "").strip()
+    try:
+        minutes = float(raw) if raw else DEFAULT_SESSION_TIMEOUT_MINUTES
+    except ValueError:
+        minutes = DEFAULT_SESSION_TIMEOUT_MINUTES
+    return max(0, int(minutes * 60))
+
+
+def session_expired(last_active: float | None, now: float, timeout: int) -> bool:
+    """True when the user has been idle longer than `timeout` seconds.
+    Checked on the next interaction (a browser tab that nobody touches isn't
+    polled), which is when it matters: before any data is shown again."""
+    if timeout <= 0 or last_active is None:
+        return False
+    return now - last_active > timeout

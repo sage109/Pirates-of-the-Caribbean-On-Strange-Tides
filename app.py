@@ -1,5 +1,5 @@
 """
-app.py -- NYASHA AI
+app.py -- Sarudzo AI
 
 Main Streamlit entry point. Wires the UI to the deterministic, already
 unit-tested modules in analytics/, rules/, services/, and database/, plus
@@ -20,6 +20,7 @@ guaranteed-working final file. Every non-Streamlit piece it calls into
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -46,8 +47,10 @@ from reports.report_generator import (
 )
 from rules.vat_rules import DISCLAIMER, VAT_RATES, calculate_vat_summary, vat_by_category
 from services.auth import (
-    ROLES, User, admin_count, can_access_page, create_user, delete_user, ensure_users_table,
-    get_user, list_users, set_role, update_password, user_count, validate_new_password, verify_user,
+    ROLES, User, admin_count, attempt_login, attempt_setup, can_access_page, configured_setup_key,
+    create_user, delete_user, ensure_users_table, get_user, list_users, log_session_expired,
+    log_sign_out, password_strength, session_expired, session_timeout_seconds, set_role,
+    update_password, user_count, validate_new_password, verify_user,
 )
 from services.exchange_rates import get_live_rate, get_supported_currencies
 from services.llm_service import (
@@ -58,9 +61,13 @@ from ui.components import (
     nav_section_label_html, nyasha_watermark_html, step_card_html,
 )
 from ui.charts import CHART_FRAME_HEIGHT, ForecastPoint, chart_page_html, forecast_chart_svg, forecast_insight
+from ui.login import (
+    brand_panel_html, form_heading_html, help_text_html, login_css, login_error_message, notice_html,
+    setup_error_message, strength_level_text, strength_meter_html,
+)
 from ui.navigation import HOME_LABEL, find_item, home_cards, visible_sections
 
-st.set_page_config(page_title="NYASHA AI", page_icon="\U0001f4a1", layout="wide")
+st.set_page_config(page_title="Sarudzo AI", page_icon="\U0001f4a1", layout="wide")
 
 DEMO_BUSINESS_NAME = "Moyo Retail & Services"
 
@@ -76,62 +83,142 @@ for key, default in {
     "demo_mode": False,
     "current_user": None,
     "current_page": HOME_LABEL,
+    "last_active": None,
+    "login_notice": None,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
 
 
 # --------------------------------------------------------------------------- Auth gate
+def end_session(reason: str | None = None) -> None:
+    """Sign the current user out and wipe what they had loaded. Their uploaded
+    transactions must not be visible to whoever signs in next in this browser
+    tab. `reason` ("signed_out" / "session_expired") picks the notice shown
+    on the login page."""
+    st.session_state.current_user = None
+    st.session_state.current_page = HOME_LABEL
+    st.session_state.transactions_df = None
+    st.session_state.demo_mode = False
+    st.session_state.last_active = None
+    st.session_state.pop("rates_used", None)
+    if reason == "session_expired":
+        st.session_state.login_notice = {
+            "kind": "warning", "key": "login_session_expired",
+            "params": {"minutes": max(1, session_timeout_seconds() // 60)},
+        }
+    elif reason == "signed_out":
+        st.session_state.login_notice = {"kind": "info", "key": "login_signed_out", "params": {}}
+
+
+def _auth_page_frame() -> tuple[str, "st.delta_generator.DeltaGenerator"]:
+    """Shared layout for the sign-in and first-run pages: language picker on
+    top, branded panel on the left, the form column on the right. Returns the
+    (already updated) language and the right-hand column to draw the form in."""
+    st.markdown(login_css(), unsafe_allow_html=True)
+    languages = available_languages()
+    _, picker_col = st.columns([3, 2])
+    with picker_col:
+        st.session_state.language = st.radio(
+            t("language_label", st.session_state.language), languages,
+            index=languages.index(st.session_state.language),
+            horizontal=True, label_visibility="collapsed", key="auth_language_picker",
+        )
+    lang = st.session_state.language
+    left, right = st.columns([5, 4], gap="large")
+    with left:
+        st.markdown(
+            brand_panel_html(
+                "Sarudzo AI", t("app_tagline", lang),
+                [t("login_trust_1", lang), t("login_trust_2", lang), t("login_trust_3", lang)],
+                t("login_footer", lang),
+            ),
+            unsafe_allow_html=True,
+        )
+    return lang, right
+
+
 def render_first_run_setup() -> None:
-    """Shown only while no accounts exist yet (Section: per-client/per-user
-    login accounts) -- mirrors the sibling investment dashboard's fix for
-    Streamlit Community Cloud giving no shell access to run a CLI script
-    against a hosted deployment."""
-    st.title("\U0001f4a1 NYASHA AI -- First-time setup")
-    st.info("No accounts exist yet. Create the first administrator account to continue.")
-    with st.form("first_run_setup"):
-        username = st.text_input("Admin username")
-        password = st.text_input("Password", type="password")
-        confirm = st.text_input("Confirm password", type="password")
-        submitted = st.form_submit_button("Create admin account")
-    if submitted:
-        if not username or not password:
-            st.error("Username and password are both required.")
-        elif password != confirm:
-            st.error("Passwords do not match.")
-        else:
-            create_user(username, password, role="admin")
-            st.success("Admin account created. Please log in below.")
-            st.rerun()
+    """Shown only while no accounts exist. Streamlit Community Cloud's disk is
+    ephemeral, so this page can reappear after a restart -- which is why a
+    setup key (NYASHA_SETUP_KEY in the app's Secrets) is checked when one is
+    configured: otherwise whoever opened the link first would become admin."""
+    lang, right = _auth_page_frame()
+    key_required = configured_setup_key() is not None
+    with right:
+        st.markdown(form_heading_html(t("setup_title", lang), t("setup_subtitle", lang)), unsafe_allow_html=True)
+        if not key_required:
+            st.markdown(notice_html("warning", t("setup_no_key_warning", lang)), unsafe_allow_html=True)
+        # Plain widgets rather than st.form so the strength meter can update as
+        # the password is typed.
+        with st.container(border=True):
+            username = st.text_input(t("setup_username", lang), help=t("setup_username_help", lang), key="setup_username")
+            password = st.text_input(t("login_password", lang), type="password", key="setup_password")
+            score = password_strength(password)
+            st.markdown(
+                strength_meter_html(score, t("pw_strength_label", lang), strength_level_text(score, lang)),
+                unsafe_allow_html=True,
+            )
+            confirm = st.text_input(t("setup_confirm", lang), type="password", key="setup_confirm")
+            setup_key = ""
+            if key_required:
+                setup_key = st.text_input(t("setup_key", lang), type="password", help=t("setup_key_help", lang), key="setup_key")
+            submitted = st.button(t("setup_button", lang), type="primary", use_container_width=True, key="setup_submit")
+        if submitted:
+            result = attempt_setup(username, password, confirm, setup_key)
+            if result.ok:
+                st.session_state.login_notice = {"kind": "success", "key": "setup_success", "params": {}}
+                st.rerun()
+            st.markdown(
+                notice_html("error", setup_error_message(result.error or "missing", lang, result.retry_after)),
+                unsafe_allow_html=True,
+            )
+            if result.error == "setup_closed":
+                st.rerun()
 
 
-def render_login() -> User | None:
-    st.title("\U0001f4a1 NYASHA AI -- Log in")
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Log in")
-    if submitted:
-        user = verify_user(username, password)
-        if user is None:
-            st.error("Incorrect username or password.")
-            return None
-        st.session_state.current_user = user
-        st.rerun()
-    return None
+def render_login() -> None:
+    lang, right = _auth_page_frame()
+    with right:
+        st.markdown(form_heading_html(t("login_title", lang), t("login_subtitle", lang)), unsafe_allow_html=True)
+        notice = st.session_state.login_notice
+        if notice:
+            text = t(notice["key"], lang).format(**notice.get("params", {}))
+            st.markdown(notice_html(notice["kind"], text), unsafe_allow_html=True)
+        with st.form("login_form"):
+            username = st.text_input(t("login_username", lang))
+            password = st.text_input(t("login_password", lang), type="password")
+            submitted = st.form_submit_button(t("login_button", lang), type="primary")
+        if submitted:
+            st.session_state.login_notice = None
+            result = attempt_login(username, password)
+            if result.status == "ok":
+                st.session_state.current_user = result.user
+                st.session_state.last_active = time.time()
+                st.rerun()
+            st.markdown(
+                notice_html("error", login_error_message(result.status, lang, result.retry_after, result.attempts_left)),
+                unsafe_allow_html=True,
+            )
+        st.markdown(help_text_html(t("login_help", lang)), unsafe_allow_html=True)
 
 
 def require_login() -> User:
     current = st.session_state.current_user
     if current is not None:
-        # Re-check the account on every run so an admin's changes take effect
-        # immediately: a deleted user is logged out, a changed role applies now.
-        fresh = get_user(current.username)
-        if fresh is not None:
-            st.session_state.current_user = fresh
-            return fresh
-        st.session_state.current_user = None
-        st.warning("Your account is no longer active. Please log in again.")
+        if session_expired(st.session_state.last_active, time.time(), session_timeout_seconds()):
+            log_session_expired(current)
+            end_session("session_expired")
+        else:
+            # Re-check the account on every run so an admin's changes take effect
+            # immediately: a deleted user is logged out, a changed role applies now.
+            fresh = get_user(current.username)
+            if fresh is not None:
+                st.session_state.current_user = fresh
+                st.session_state.last_active = time.time()
+                return fresh
+            end_session()
+            st.session_state.login_notice = {"kind": "warning", "key": "login_account_inactive", "params": {}}
     if user_count() == 0:
         render_first_run_setup()
     else:
@@ -155,7 +242,7 @@ def sidebar(user: User) -> str:
         current = st.session_state.current_page = HOME_LABEL
 
     with st.sidebar:
-        st.markdown("## \U0001f4a1 NYASHA AI")
+        st.markdown("## \U0001f4a1 Sarudzo AI")
         st.caption(t("app_tagline", st.session_state.language))
         st.caption(f"Logged in as **{user.username}** ({user.role})")
         # Layout order is fixed here (navigation on top, settings below); the
@@ -166,8 +253,8 @@ def sidebar(user: User) -> str:
         settings_box = st.container()
         st.divider()
         if st.button("Log out"):
-            st.session_state.current_user = None
-            st.session_state.current_page = HOME_LABEL
+            log_sign_out(user)
+            end_session("signed_out")
             st.rerun()
 
     with settings_box:
@@ -310,8 +397,8 @@ def page_home(user: User):
 
     st.markdown(
         hero_html(
-            "NYASHA AI", t("app_tagline", lang),
-            "NYASHA AI turns raw SME transaction data into financial analysis, risk detection, "
+            "Sarudzo AI", t("app_tagline", lang),
+            "Sarudzo AI turns raw SME transaction data into financial analysis, risk detection, "
             "cash-flow forecasts, VAT summaries, and AI-explained recommendations -- with every "
             "figure computed deterministically in Python and never invented by the AI.",
         ),
@@ -446,7 +533,7 @@ def page_dashboard():
 
 def render_live_rates_section() -> None:
     """
-    Live exchange rates for every currency NYASHA AI supports, quoted
+    Live exchange rates for every currency Sarudzo AI supports, quoted
     against the current reporting currency -- independent of what's
     actually present in the uploaded dataset (that's what render_fx_badges()
     covers). Each rate is clearly tagged live/cached/manual per Section 13;
@@ -556,7 +643,7 @@ def page_financial_analysis():
             st.caption(c.explanation)
 
     if st.button(t("explain_with_ai", st.session_state.language)):
-        with st.spinner("Asking NYASHA AI..."):
+        with st.spinner("Asking Sarudzo AI..."):
             lang_code = {"English": "en", "Shona": "sn", "Ndebele": "nd"}[st.session_state.language]
             explanation = explain_financial_result(
                 {"profitability": prof, "liquidity": liq, "health_score": health}, language=lang_code,
@@ -676,7 +763,7 @@ def page_vat():
     cur = st.session_state.reporting_currency
 
     st.markdown(
-        f"NYASHA AI classifies every transaction's VAT status (standard-rated at "
+        f"Sarudzo AI classifies every transaction's VAT status (standard-rated at "
         f"**{VAT_RATES['standard']:.1%}**, zero-rated, or exempt) and calculates VAT the way a "
         f"Zimbabwean SME accountant would: **Output VAT** is VAT charged on sales (owed to ZIMRA), "
         f"**Input VAT** is VAT paid on purchases (claimable back), and **Net VAT Payable** is the "
@@ -795,7 +882,7 @@ def page_reports():
     if df is None:
         return
 
-    st.caption("Runs the full NYASHA AI pipeline (agents/orchestrator.py) once and lets you export the results.")
+    st.caption("Runs the full Sarudzo AI pipeline (agents/orchestrator.py) once and lets you export the results.")
     include_ai = st.checkbox("Include AI explanation in the report", value=False,
                               help="Calls the LLM (or its offline demo-mode fallback) -- leave off for a faster, purely deterministic report.")
 

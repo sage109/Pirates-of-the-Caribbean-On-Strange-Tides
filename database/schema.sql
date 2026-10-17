@@ -1,4 +1,4 @@
--- NYASHA AI database schema
+-- Sarudzo AI database schema
 -- SQLite. Note: on Streamlit Community Cloud this file is ephemeral
 -- (wiped on redeploy/reboot) -- see database/seed.py, which rebuilds
 -- everything below from the sample dataset on cold start.

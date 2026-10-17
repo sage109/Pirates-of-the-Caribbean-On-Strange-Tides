@@ -40,10 +40,10 @@ section.main > div { position: relative; z-index: 1; }
 
 
 def nyasha_watermark_html() -> str:
-    """Section 31: full-page NYASHA watermark. Cosmetic only -- an
+    """Section 31: full-page Sarudzo watermark. Cosmetic only -- an
     extremely low-opacity, fixed, click-through layer so it never
     interferes with reading the dashboard or clicking controls."""
-    return WATERMARK_CSS + '<div class="nyasha-watermark"><span>NYASHA AI</span></div>'
+    return WATERMARK_CSS + '<div class="nyasha-watermark"><span>Sarudzo AI</span></div>'
 
 
 _RATING_COLORS = {

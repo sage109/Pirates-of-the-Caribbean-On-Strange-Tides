@@ -1,7 +1,7 @@
 """
 database/database.py
 
-Thin SQLite wrapper for NYASHA AI. Deliberately dependency-free (stdlib
+Thin SQLite wrapper for Sarudzo AI. Deliberately dependency-free (stdlib
 sqlite3 only) so it works with zero pip installs.
 
 IMPORTANT (see Section 0A.1 of the master prompt): on Streamlit Community

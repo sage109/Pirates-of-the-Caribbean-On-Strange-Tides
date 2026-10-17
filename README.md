@@ -1,6 +1,10 @@
-# NYASHA AI
+# Sarudzo AI
 ### Multilingual & Multi-Currency SME Financial Intelligence Agent
 *"From Financial Data to Smarter Decisions."*
+
+> Renamed from "NYASHA AI". Internal names are unchanged on purpose so nothing
+> already configured breaks: the `NYASHA_*` environment variables / Streamlit
+> secrets (`NYASHA_SETUP_KEY`, `NYASHA_DEMO_MODE`, ...) and the database file.
 
 ## Status
 
@@ -15,7 +19,7 @@ control-flow bugs before a networked environment is available -- but it has
 **not** run against real `streamlit`, so still treat it as a strong draft to
 verify, not a guaranteed-working final file.
 
-### ✅ Implemented and tested (151/151 tests passing)
+### ✅ Implemented and tested (185/185 tests passing)
 
 - [x] Project structure (Section 4)
 - [x] SQLite schema + seed/reset script that survives ephemeral deploys (0A.1)
@@ -115,6 +119,24 @@ verify, not a guaranteed-working final file.
       in a blue / amber / red box that follows the 90-day cash status. The chart
       is shown in an iframe (`st.components.v1.html`) so it renders exactly as
       designed. Tests: `tests/test_charts.py`.
+- [x] **Sign-in page and first-run setup upgrade** -- `ui/login.py`,
+      `services/auth.py`, `app.py` (`render_login`, `render_first_run_setup`,
+      `require_login`). Branded two-panel page (navy panel with the tagline and
+      three trust points, form beside it; on phones the panel shrinks so the
+      form stays on screen), a language picker (English / Shona / Ndebele) on
+      the sign-in page itself, and clear messages in all three languages.
+      Protections: 5 wrong passwords inside 15 minutes lock that username for
+      10 minutes (also for usernames that don't exist, and the message never
+      says which of username/password was wrong); sign-in, failed sign-in,
+      lockout, sign-out and idle sign-out are written to the Audit Trail (never
+      the password); usernames are matched ignoring case; an idle session is
+      signed out after 30 minutes (`NYASHA_SESSION_TIMEOUT_MINUTES`, 0 turns it
+      off) and sign-out / expiry now clears any uploaded data from the session.
+      First-run setup checks username and password rules, shows a password
+      strength meter, refuses to run again once an account exists, and -- when
+      `NYASHA_SETUP_KEY` is set in the app's Secrets -- needs that key, so a
+      stranger can't claim an emptied database. Tests: `tests/test_auth.py`,
+      `tests/test_login_ui.py`.
 - [x] **Multi-language UI** (Section 15) -- `locales/translations.py`,
       English/Shona/Ndebele, wired into navigation, headers, and key labels
       in `app.py`; full-sentence AI explanations are translated by the LLM
@@ -127,7 +149,7 @@ verify, not a guaranteed-working final file.
       PDF. Optional in-app PDF download via `xhtml2pdf`/`weasyprint` if
       either is installed, with a clean, tested fallback to "download the
       HTML instead" when neither is.
-- [x] **NYASHA watermark** (Section 31) -- `ui/components.py`, a low-opacity,
+- [x] **Sarudzo watermark** (Section 31) -- `ui/components.py`, a low-opacity,
       click-through, full-page watermark. Done last, as planned (Section 0A.3
       says cosmetic work goes last).
 - [x] **Demo Mode** -- sidebar toggle that auto-loads the Moyo Retail &
@@ -198,7 +220,9 @@ python3 -m unittest discover -s tests -v
    in-app first-run form, then log in and add everyone else from the
    **User Management** page (admin only). For local/self-hosted use,
    `python3 scripts/create_user.py --username <name> --role <admin|accountant|viewer>`
-   still works.
+   still works. On Streamlit Community Cloud, add `NYASHA_SETUP_KEY = "<a long
+   secret only you know>"` under the app's Settings > Secrets so only you can
+   create the first admin.
 7. Follow Section 41's 21-step demo script as your integration test -- Demo
    Mode (sidebar toggle) is built to support exactly this.
 
@@ -211,7 +235,18 @@ python3 -m unittest discover -s tests -v
   database. If the database is wiped, the app shows the first-run setup form
   again and whoever opens the link first becomes the admin -- so after any
   redeploy or reboot, open the app yourself and recreate the admin before
-  sharing the link.
+  sharing the link. Setting `NYASHA_SETUP_KEY` (see above) closes this gap:
+  without the key nobody else can create that first account.
+- The sign-in lockout counters live in the same SQLite file, so they also reset
+  when the filesystem is wiped; the idle sign-out is checked on the user's next
+  click (a tab nobody touches isn't polled). The Shona and Ndebele sign-in
+  wording is a careful best effort -- have a first-language speaker review it
+  before presenting.
+- The sign-in page CSS targets Streamlit's `data-testid` attributes
+  (`ui/login.py`). The logic is covered by unit tests and a Streamlit-stub
+  walk-through of every sign-in flow, and the layout was checked in Chromium
+  as static HTML, but it has not been seen in a real Streamlit run -- check the
+  live page after deploying.
 - Liquidity ratios and receivables/payables are computed as proxies from
   transaction categories, since a transaction feed alone doesn't carry a
   formal balance sheet or AR/AP subledger -- documented inline in

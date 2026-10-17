@@ -33,7 +33,7 @@ GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
 # let this be a second source of the same "answer looks incomplete" symptom.
 MAX_OUTPUT_TOKENS = int(os.environ.get("NYASHA_LLM_MAX_TOKENS", "1500"))
 
-SYSTEM_PROMPT = """You are the explanation and recommendation layer of NYASHA AI, \
+SYSTEM_PROMPT = """You are the explanation and recommendation layer of Sarudzo AI, \
 a financial decision-support tool for Zimbabwean SMEs. You will be given VERIFIED \
 financial figures that have already been calculated by deterministic Python code. \
 
