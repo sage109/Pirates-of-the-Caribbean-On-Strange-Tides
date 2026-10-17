@@ -6,7 +6,7 @@ data, not hard-coded into calculation logic, so they can be updated
 without touching business logic elsewhere (Zimbabwe's VAT rate has
 changed over time -- do not assume today's rate stays fixed).
 
-NYASHA AI is a financial decision-support tool and does not replace
+Sarudzo AI is a financial decision-support tool and does not replace
 professional tax or accounting advice. This disclaimer must be shown
 alongside any VAT output in the UI (Section 11).
 """
@@ -26,7 +26,7 @@ VAT_RATES: dict[str, float] = {
     "exempt": 0.0,
 }
 DISCLAIMER = (
-    "NYASHA AI is a financial decision-support tool and does not replace "
+    "Sarudzo AI is a financial decision-support tool and does not replace "
     "professional tax or accounting advice."
 )
 

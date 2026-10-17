@@ -1,6 +1,10 @@
-# NYASHA AI
+# Sarudzo AI
 ### Multilingual & Multi-Currency SME Financial Intelligence Agent
 *"From Financial Data to Smarter Decisions."*
+
+> Renamed from "NYASHA AI". Internal names are unchanged on purpose so nothing
+> already configured breaks: the `NYASHA_*` environment variables / Streamlit
+> secrets (`NYASHA_SETUP_KEY`, `NYASHA_DEMO_MODE`, ...) and the database file.
 
 ## Status
 
@@ -145,7 +149,7 @@ verify, not a guaranteed-working final file.
       PDF. Optional in-app PDF download via `xhtml2pdf`/`weasyprint` if
       either is installed, with a clean, tested fallback to "download the
       HTML instead" when neither is.
-- [x] **NYASHA watermark** (Section 31) -- `ui/components.py`, a low-opacity,
+- [x] **Sarudzo watermark** (Section 31) -- `ui/components.py`, a low-opacity,
       click-through, full-page watermark. Done last, as planned (Section 0A.3
       says cosmetic work goes last).
 - [x] **Demo Mode** -- sidebar toggle that auto-loads the Moyo Retail &

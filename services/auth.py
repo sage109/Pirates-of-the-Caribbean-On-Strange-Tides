@@ -1,7 +1,7 @@
 """
 services/auth.py
 
-Simple, dependency-free login for NYASHA AI. Reuses the same pattern
+Simple, dependency-free login for Sarudzo AI. Reuses the same pattern
 already used and demo-tested in the sibling investment-dashboard project:
 salted PBKDF2-SHA256 password hashes (stdlib `hashlib`, no plaintext ever
 stored). There is deliberately NO public "sign up" form: this is a

@@ -18,7 +18,7 @@ class TestLoginHtml(unittest.TestCase):
         self.assertIn("tag&amp;line", out)
 
     def test_brand_panel_lists_every_point(self):
-        out = brand_panel_html("NYASHA AI", "t", ["one", "two", "three"], "f")
+        out = brand_panel_html("Sarudzo AI", "t", ["one", "two", "three"], "f")
         self.assertEqual(out.count("<li>"), 3)
 
     def test_no_blank_lines_or_indentation_that_break_markdown(self):

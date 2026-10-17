@@ -2,7 +2,7 @@
 agents/orchestrator.py
 
 Section 18: orchestrates the individual analysis steps into a single agent
-pipeline using LangGraph, so NYASHA AI behaves like one coherent agent
+pipeline using LangGraph, so Sarudzo AI behaves like one coherent agent
 rather than a set of unrelated Streamlit pages calling functions ad hoc.
 
 Design rule (Section 0A.3, 17, 37): every node in this graph either calls a

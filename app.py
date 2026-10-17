@@ -1,5 +1,5 @@
 """
-app.py -- NYASHA AI
+app.py -- Sarudzo AI
 
 Main Streamlit entry point. Wires the UI to the deterministic, already
 unit-tested modules in analytics/, rules/, services/, and database/, plus
@@ -67,7 +67,7 @@ from ui.login import (
 )
 from ui.navigation import HOME_LABEL, find_item, home_cards, visible_sections
 
-st.set_page_config(page_title="NYASHA AI", page_icon="\U0001f4a1", layout="wide")
+st.set_page_config(page_title="Sarudzo AI", page_icon="\U0001f4a1", layout="wide")
 
 DEMO_BUSINESS_NAME = "Moyo Retail & Services"
 
@@ -129,7 +129,7 @@ def _auth_page_frame() -> tuple[str, "st.delta_generator.DeltaGenerator"]:
     with left:
         st.markdown(
             brand_panel_html(
-                "NYASHA AI", t("app_tagline", lang),
+                "Sarudzo AI", t("app_tagline", lang),
                 [t("login_trust_1", lang), t("login_trust_2", lang), t("login_trust_3", lang)],
                 t("login_footer", lang),
             ),
@@ -242,7 +242,7 @@ def sidebar(user: User) -> str:
         current = st.session_state.current_page = HOME_LABEL
 
     with st.sidebar:
-        st.markdown("## \U0001f4a1 NYASHA AI")
+        st.markdown("## \U0001f4a1 Sarudzo AI")
         st.caption(t("app_tagline", st.session_state.language))
         st.caption(f"Logged in as **{user.username}** ({user.role})")
         # Layout order is fixed here (navigation on top, settings below); the
@@ -397,8 +397,8 @@ def page_home(user: User):
 
     st.markdown(
         hero_html(
-            "NYASHA AI", t("app_tagline", lang),
-            "NYASHA AI turns raw SME transaction data into financial analysis, risk detection, "
+            "Sarudzo AI", t("app_tagline", lang),
+            "Sarudzo AI turns raw SME transaction data into financial analysis, risk detection, "
             "cash-flow forecasts, VAT summaries, and AI-explained recommendations -- with every "
             "figure computed deterministically in Python and never invented by the AI.",
         ),
@@ -533,7 +533,7 @@ def page_dashboard():
 
 def render_live_rates_section() -> None:
     """
-    Live exchange rates for every currency NYASHA AI supports, quoted
+    Live exchange rates for every currency Sarudzo AI supports, quoted
     against the current reporting currency -- independent of what's
     actually present in the uploaded dataset (that's what render_fx_badges()
     covers). Each rate is clearly tagged live/cached/manual per Section 13;
@@ -643,7 +643,7 @@ def page_financial_analysis():
             st.caption(c.explanation)
 
     if st.button(t("explain_with_ai", st.session_state.language)):
-        with st.spinner("Asking NYASHA AI..."):
+        with st.spinner("Asking Sarudzo AI..."):
             lang_code = {"English": "en", "Shona": "sn", "Ndebele": "nd"}[st.session_state.language]
             explanation = explain_financial_result(
                 {"profitability": prof, "liquidity": liq, "health_score": health}, language=lang_code,
@@ -763,7 +763,7 @@ def page_vat():
     cur = st.session_state.reporting_currency
 
     st.markdown(
-        f"NYASHA AI classifies every transaction's VAT status (standard-rated at "
+        f"Sarudzo AI classifies every transaction's VAT status (standard-rated at "
         f"**{VAT_RATES['standard']:.1%}**, zero-rated, or exempt) and calculates VAT the way a "
         f"Zimbabwean SME accountant would: **Output VAT** is VAT charged on sales (owed to ZIMRA), "
         f"**Input VAT** is VAT paid on purchases (claimable back), and **Net VAT Payable** is the "
@@ -882,7 +882,7 @@ def page_reports():
     if df is None:
         return
 
-    st.caption("Runs the full NYASHA AI pipeline (agents/orchestrator.py) once and lets you export the results.")
+    st.caption("Runs the full Sarudzo AI pipeline (agents/orchestrator.py) once and lets you export the results.")
     include_ai = st.checkbox("Include AI explanation in the report", value=False,
                               help="Calls the LLM (or its offline demo-mode fallback) -- leave off for a faster, purely deterministic report.")
 

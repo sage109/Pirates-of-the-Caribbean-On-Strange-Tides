@@ -75,9 +75,9 @@ _STRINGS: dict[str, dict[str, str]] = {
         "nd": "Siyakwamukela futhi",
     },
     "login_subtitle": {
-        "en": "Sign in to your NYASHA AI workspace.",
-        "sn": "Pinda muchikuva chako cheNYASHA AI.",
-        "nd": "Ngena endaweni yakho ye-NYASHA AI.",
+        "en": "Sign in to your Sarudzo AI workspace.",
+        "sn": "Pinda muchikuva chako cheSarudzo AI.",
+        "nd": "Ngena endaweni yakho ye-Sarudzo AI.",
     },
     "login_username": {
         "en": "Username",
@@ -155,9 +155,9 @@ _STRINGS: dict[str, dict[str, str]] = {
         "nd": "Isisekelo sokuqonda samabhizinisi amancane eZimbabwe -- iphrojekthi yasenyuvesi.",
     },
     "setup_title": {
-        "en": "Set up NYASHA AI",
-        "sn": "Gadzirira NYASHA AI",
-        "nd": "Setha i-NYASHA AI",
+        "en": "Set up Sarudzo AI",
+        "sn": "Gadzirira Sarudzo AI",
+        "nd": "Setha i-Sarudzo AI",
     },
     "setup_subtitle": {
         "en": "Create the first administrator account. You will add everyone else from User Management.",

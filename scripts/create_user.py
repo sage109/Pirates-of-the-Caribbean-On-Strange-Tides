@@ -27,7 +27,7 @@ from services.auth import ROLES, create_user, ensure_users_table
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Create a NYASHA AI user account (local/self-hosted use only).")
+    parser = argparse.ArgumentParser(description="Create a Sarudzo AI user account (local/self-hosted use only).")
     parser.add_argument("--username", required=True)
     parser.add_argument("--role", choices=ROLES, default="viewer")
     args = parser.parse_args()

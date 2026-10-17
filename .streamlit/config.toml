@@ -1,4 +1,4 @@
-# Light theme in NYASHA AI's navy / cream / gold palette. base = "light" is
+# Light theme in Sarudzo AI's navy / cream / gold palette. base = "light" is
 # deliberate: several components (demo banner, gauge track, cards) use fixed
 # light colours, so the app must not flip to a dark theme on dark-mode browsers.
 [theme]

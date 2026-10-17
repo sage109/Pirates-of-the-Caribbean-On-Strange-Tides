@@ -1,7 +1,7 @@
 """
 ui/navigation.py
 
-The single source of truth for NYASHA AI's pages: which sections they are
+The single source of truth for Sarudzo AI's pages: which sections they are
 grouped into, their icons, their translation keys and the one-line
 descriptions shown on the Home page cards.
 

@@ -10,7 +10,7 @@ from ui.components import (
 class TestUiComponents(unittest.TestCase):
     def test_watermark_contains_brand_and_is_click_through(self):
         out = nyasha_watermark_html()
-        self.assertIn("NYASHA AI", out)
+        self.assertIn("Sarudzo AI", out)
         self.assertIn("pointer-events: none", out)
 
     def test_gauge_is_well_formed_svg(self):
@@ -63,8 +63,8 @@ class TestUiComponents(unittest.TestCase):
             self.assertNotIn("<script>", out)
 
     def test_hero_contains_brand_tagline_and_body(self):
-        out = hero_html("NYASHA AI", "Smarter Decisions.", "Body text here.")
-        for piece in ("NYASHA AI", "Smarter Decisions.", "Body text here."):
+        out = hero_html("Sarudzo AI", "Smarter Decisions.", "Body text here.")
+        for piece in ("Sarudzo AI", "Smarter Decisions.", "Body text here."):
             self.assertIn(piece, out)
 
     def test_step_card_done_state(self):
