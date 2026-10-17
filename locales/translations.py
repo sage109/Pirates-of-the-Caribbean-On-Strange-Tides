@@ -69,6 +69,206 @@ _STRINGS: dict[str, dict[str, str]] = {
         "sn": "Ichi chinongova chinobatsira mukusarudza -- hachisi chinotsiva mazano emitero enyanzvi.",
         "nd": "Lokhu kuyisekelo sokuqonda kuphela -- akuyona indawo yeseluleko sochwepheshe ngentela.",
     },
+    "login_title": {
+        "en": "Welcome back",
+        "sn": "Titambire zvakare",
+        "nd": "Siyakwamukela futhi",
+    },
+    "login_subtitle": {
+        "en": "Sign in to your NYASHA AI workspace.",
+        "sn": "Pinda muchikuva chako cheNYASHA AI.",
+        "nd": "Ngena endaweni yakho ye-NYASHA AI.",
+    },
+    "login_username": {
+        "en": "Username",
+        "sn": "Zita rekushandisa",
+        "nd": "Igama lomsebenzisi",
+    },
+    "login_password": {
+        "en": "Password",
+        "sn": "Pasiwedhi",
+        "nd": "Iphasiwedi",
+    },
+    "login_button": {
+        "en": "Sign in",
+        "sn": "Pinda",
+        "nd": "Ngena",
+    },
+    "login_err_missing": {
+        "en": "Enter both your username and password.",
+        "sn": "Isa zita rekushandisa nepasiwedhi.",
+        "nd": "Faka igama lomsebenzisi leliphasiwedi.",
+    },
+    "login_err_invalid": {
+        "en": "Incorrect username or password.",
+        "sn": "Zita rekushandisa kana pasiwedhi hazvina kururama.",
+        "nd": "Igama lomsebenzisi noma iphasiwedi akulunganga.",
+    },
+    "login_attempts_left": {
+        "en": "{n} attempt(s) left before a temporary lock.",
+        "sn": "Wasara nemikana {n} usati wavharirwa kwechinguva.",
+        "nd": "Usele lamathuba angu-{n} ngaphambi kokuvalelwa okwesikhatshana.",
+    },
+    "login_err_locked": {
+        "en": "Too many failed attempts. Try again in {minutes} minute(s).",
+        "sn": "Wakaedza kakawanda zvisina kubudirira. Edza zvakare mushure memaminitsi {minutes}.",
+        "nd": "Ubuzame kaningi kungaphumeleli. Zama futhi emva kwemizuzu engu-{minutes}.",
+    },
+    "login_help": {
+        "en": "No account, or forgot your password? Ask your administrator -- accounts are created by administrators only.",
+        "sn": "Hauna akaundi kana wakanganwa pasiwedhi? Bvunza administrator wako -- maakaundi anogadzirwa neadministrator chete.",
+        "nd": "Awunayo i-akhawunti noma ukhohliwe iphasiwedi? Buza umlawuli wakho -- ama-akhawunti enziwa ngabalawuli kuphela.",
+    },
+    "login_session_expired": {
+        "en": "You were signed out after {minutes} minutes of inactivity.",
+        "sn": "Wakabuditswa mushure memaminitsi {minutes} usina kushanda.",
+        "nd": "Uphume ngemva kwemizuzu engu-{minutes} ungasebenzi.",
+    },
+    "login_account_inactive": {
+        "en": "Your account is no longer active. Please sign in again.",
+        "sn": "Akaundi yako haichashandi. Ndapota pinda zvakare.",
+        "nd": "I-akhawunti yakho ayisasebenzi. Sicela ungene futhi.",
+    },
+    "login_signed_out": {
+        "en": "You have been signed out.",
+        "sn": "Wabuditswa.",
+        "nd": "Usuphumile.",
+    },
+    "login_trust_1": {
+        "en": "Passwords are salted and hashed -- never stored in plain text.",
+        "sn": "Mapasiwedhi anochengetwa akavharirwa -- haachengetwi achiverengeka.",
+        "nd": "Amaphasiwedi agcinwa efihliwe -- awagcinwa evulekile.",
+    },
+    "login_trust_2": {
+        "en": "Repeated failed sign-ins lock the account for a while.",
+        "sn": "Kuedza kupinda kwakundikana kakawanda kunovhara akaundi kwechinguva.",
+        "nd": "Ukuzama ukungena okwehlulekayo kaningi kuvala i-akhawunti okwesikhatshana.",
+    },
+    "login_trust_3": {
+        "en": "Every sign-in is recorded in the Audit Trail.",
+        "sn": "Kupinda kwese kunonyorwa muAudit Trail.",
+        "nd": "Konke ukungena kuyaqoshwa ku-Audit Trail.",
+    },
+    "login_footer": {
+        "en": "Decision support for Zimbabwean SMEs -- a university project.",
+        "sn": "Rutsigiro rwekusarudza kumabhizinesi madiki eZimbabwe -- chirongwa chedzidzo.",
+        "nd": "Isisekelo sokuqonda samabhizinisi amancane eZimbabwe -- iphrojekthi yasenyuvesi.",
+    },
+    "setup_title": {
+        "en": "Set up NYASHA AI",
+        "sn": "Gadzirira NYASHA AI",
+        "nd": "Setha i-NYASHA AI",
+    },
+    "setup_subtitle": {
+        "en": "Create the first administrator account. You will add everyone else from User Management.",
+        "sn": "Gadzira akaundi yekutanga yeadministrator. Vamwe vese uchavawedzera kubva kuKutonga Vashandisi.",
+        "nd": "Dala i-akhawunti yokuqala yomlawuli. Abanye bonke uzabengeza ku-Ukuphatha Abasebenzisi.",
+    },
+    "setup_username": {
+        "en": "Administrator username",
+        "sn": "Zita readministrator",
+        "nd": "Igama lomlawuli",
+    },
+    "setup_username_help": {
+        "en": "3-32 characters: letters, numbers, dot, dash or underscore.",
+        "sn": "Mavara 3-32: mavara, nhamba, ponti, dash kana underscore.",
+        "nd": "Izinhlamvu ezingu-3-32: izinhlamvu, izinombolo, ichashazi, idashi noma i-underscore.",
+    },
+    "setup_confirm": {
+        "en": "Confirm password",
+        "sn": "Simbisa pasiwedhi",
+        "nd": "Qinisekisa iphasiwedi",
+    },
+    "setup_key": {
+        "en": "Setup key",
+        "sn": "Kiyi yekugadzirira",
+        "nd": "Ukhiye wokusetha",
+    },
+    "setup_key_help": {
+        "en": "The owner's key, saved as NYASHA_SETUP_KEY in the app's secrets.",
+        "sn": "Kiyi yemuridzi, yakachengetwa seNYASHA_SETUP_KEY musecrets dzeapp.",
+        "nd": "Ukhiye womnikazi, ogcinwe njenge-NYASHA_SETUP_KEY ku-secrets ze-app.",
+    },
+    "setup_button": {
+        "en": "Create administrator",
+        "sn": "Gadzira administrator",
+        "nd": "Dala umlawuli",
+    },
+    "setup_no_key_warning": {
+        "en": "No setup key is configured, so whoever opens this page first can become the administrator. Add NYASHA_SETUP_KEY to the app's secrets to prevent this.",
+        "sn": "Hapana kiyi yekugadzirira yakaiswa, saka ani nani anotanga kuvhura peji iyi anogona kuva administrator. Isa NYASHA_SETUP_KEY musecrets dzeapp kudzivirira izvi.",
+        "nd": "Akukho khiye wokusetha owakhiwe, ngakho noma ngubani ovula leli khasi kuqala angaba ngumlawuli. Faka i-NYASHA_SETUP_KEY ku-secrets ze-app ukuvikela lokhu.",
+    },
+    "setup_err_missing": {
+        "en": "Fill in every field.",
+        "sn": "Zadza minda yese.",
+        "nd": "Gcwalisa wonke amabala.",
+    },
+    "setup_err_username_length": {
+        "en": "Username must be 3-32 characters.",
+        "sn": "Zita rinofanira kuva nemavara 3-32.",
+        "nd": "Igama kumele libe lezinhlamvu ezingu-3-32.",
+    },
+    "setup_err_username_chars": {
+        "en": "Username may only use letters, numbers, dot, dash and underscore, and must start with a letter or number.",
+        "sn": "Zita rinogona kushandisa mavara, nhamba, ponti, dash neunderscore chete, uye rinofanira kutanga neibvara kana nhamba.",
+        "nd": "Igama lingasebenzisa izinhlamvu, izinombolo, ichashazi, idashi le-underscore kuphela, futhi kumele liqale ngohlamvu noma ngenombolo.",
+    },
+    "setup_err_password_short": {
+        "en": "Password must be at least {n} characters.",
+        "sn": "Pasiwedhi inofanira kuva nemavara {n} kana kupfuura.",
+        "nd": "Iphasiwedi kumele ibe lezinhlamvu ezingu-{n} noma ngaphezulu.",
+    },
+    "setup_err_password_spaces": {
+        "en": "Password must not start or end with a space.",
+        "sn": "Pasiwedhi haifanire kutanga kana kupera nenzvimbo isina chinhu.",
+        "nd": "Iphasiwedi akumele iqale noma iphele ngesikhala.",
+    },
+    "setup_err_mismatch": {
+        "en": "Passwords do not match.",
+        "sn": "Mapasiwedhi haafanani.",
+        "nd": "Amaphasiwedi awafani.",
+    },
+    "setup_err_bad_setup_key": {
+        "en": "That setup key is not correct.",
+        "sn": "Kiyi yekugadzirira iyi haina kururama.",
+        "nd": "Lokhu khiye wokusetha akulunganga.",
+    },
+    "setup_err_setup_closed": {
+        "en": "Setup is already complete. Please sign in.",
+        "sn": "Kugadzirira kwapera kare. Ndapota pinda.",
+        "nd": "Ukusetha sekuphelile. Sicela ungene.",
+    },
+    "setup_success": {
+        "en": "Administrator created. Sign in with your new account.",
+        "sn": "Administrator agadzirwa. Pinda neakaundi yako itsva.",
+        "nd": "Umlawuli udaliwe. Ngena nge-akhawunti yakho entsha.",
+    },
+    "pw_strength_label": {
+        "en": "Password strength",
+        "sn": "Simba repasiwedhi",
+        "nd": "Amandla ephasiwedi",
+    },
+    "pw_strength_1": {
+        "en": "Weak",
+        "sn": "Isina simba",
+        "nd": "Buthakathaka",
+    },
+    "pw_strength_2": {
+        "en": "Fair",
+        "sn": "Zvakaringana",
+        "nd": "Kuhle kancane",
+    },
+    "pw_strength_3": {
+        "en": "Good",
+        "sn": "Yakanaka",
+        "nd": "Kuhle",
+    },
+    "pw_strength_4": {
+        "en": "Strong",
+        "sn": "Ine simba",
+        "nd": "Namandla",
+    },
 }
 
 
